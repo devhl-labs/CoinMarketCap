@@ -168,7 +168,7 @@ Authentication schemes defined for the API:
 
 ## OpenApi Generator Parameteres
 - SDK version: 1.0.0
-- Build date: 2021-12-19T00:14:55.617765300-05:00[America/New_York]
+- Build date: 2021-12-19T13:30:24.009477800-05:00[America/New_York]
 - Build package: org.openapitools.codegen.languages.CSharpNetCoreClientCodegen
 - Package name: Cmc
 - allowUnicodeIdentifiers 
@@ -186,7 +186,7 @@ Authentication schemes defined for the API:
 - optionalEmitDefaultValues: false
 - optionalMethodArgument: true
 - optionalProjectFile: 
-- packageGuid: {A11860F3-B1CD-4325-8F60-1026D2F368A8}
+- packageGuid: {3B4B4AFF-DFA6-42ED-B9AE-3C7195CA9C80}
 - packageName: Cmc
 - packageTags: 
 - packageVersion: 1.0.0
