@@ -804,6 +804,8 @@ tags:
   description: |-
     ##### API endpoints for managing your API key. This category currently includes 1 endpoint:
     - [/v1/key/info](#operation/getV1KeyInfo) - Key Info
+security:
+- ApiKeyAuth: []
 paths:
   "/v1/cryptocurrency/airdrop":
     get:
@@ -4088,6 +4090,11 @@ paths:
           schema:
             "$ref": "#/definitions/HTTP Status 500 Error Object"
             description: Internal Server Error
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    name: X-CMC_PRO_API_KEY
+    in: header
 definitions:
   coin:
     type: object
