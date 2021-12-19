@@ -123,7 +123,7 @@ Authentication schemes defined for the API:
 
 ## Build
 - SDK version: 1.0.0
-- Build date: 2021-12-19T17:29:59.628517200-05:00[America/New_York]
+- Build date: 2021-12-19T18:48:30.452379500-05:00[America/New_York]
 - Build package: org.openapitools.codegen.languages.CSharpNetCoreClientCodegen
 
 ## Api Configuration
@@ -143,10 +143,10 @@ Authentication schemes defined for the API:
 - withXml: 
 
 ## [OpenApi Generator Parameteres](https://openapi-generator.tech/docs/generators/csharp-netcore)
-- allowUnicodeIdentifiers 
-- caseInsensitiveResponseHeaders 
-- conditionalSerialization false
-- disallowAdditionalPropertiesIfNotPresent 
+- allowUnicodeIdentifiers: 
+- caseInsensitiveResponseHeaders: 
+- conditionalSerialization: false
+- disallowAdditionalPropertiesIfNotPresent: 
 - hideGenerationTimestamp: false
 - interfacePrefix: I
 - library: generichost
@@ -159,7 +159,7 @@ Authentication schemes defined for the API:
 - optionalEmitDefaultValues: false
 - optionalMethodArgument: true
 - optionalProjectFile: 
-- packageGuid: {D90BC0EB-241A-4ED4-ABAE-58E7A1F678FE}
+- packageGuid: {88868F79-2310-4EAC-8624-568C34941319}
 - packageName: Cmc
 - packageTags: 
 - packageVersion: 1.0.0
