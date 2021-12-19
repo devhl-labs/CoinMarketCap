@@ -7814,16 +7814,6 @@ definitions:
     - percent_change_7d
     - percent_change_30d
     - last_updated
-  Cryptocurrency Quotes Latest - Quote map:
-    type: object
-    description: A map of market quotes in different currency conversions. The default
-      map included is USD.
-    properties:
-      "$key":
-        "$ref": "#/definitions/Cryptocurrency Quotes Latest - Quote object"
-        description: A market quote in the currency conversion option.
-    required:
-    - "$key"
   Cryptocurrency Quotes Latest - Cryptocurrency object:
     type: object
     description: A cryptocurrency object for each requested.
@@ -7910,7 +7900,9 @@ definitions:
           data was updated.
         example: '2018-06-02T23:59:59.999Z'
       quote:
-        "$ref": "#/definitions/Cryptocurrency Quotes Latest - Quote map"
+        type: object
+        additionalProperties:
+          "$ref": "#/definitions/Cryptocurrency Quotes Latest - Quote object"
         description: A map of market quotes in different currency conversions. The
           default map included is USD.
     required:
@@ -7922,6 +7914,8 @@ definitions:
     - quote
   Cryptocurrency Quotes Latest - Cryptocurrency Results map:
     type: object
+    additionalProperties:
+      $ref: '#/components/schemas/Cryptocurrency Quotes Latest - Cryptocurrency object'
     description: A map of cryptocurrency objects by ID, symbol, or slug (as used in
       query parameters).
     example:
