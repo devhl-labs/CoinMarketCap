@@ -6,17 +6,22 @@ $output = Resolve-Path -Path $PSScriptRoot\..\..\generated-src
 $templates = Resolve-Path -Path $PSScriptRoot\..\templates
 
 $properties = @(
-    'projectName=Cmc'
-    'packageName=Cmc',
-    'targetFramework=net5.0'
+    'projectName=Cmc',
+    'targetFramework=net5.0',
     'validatable=false',
     'nullableReferenceTypes=true',
     'hideGenerationTimestamp=false',
-    'packageVersion=1.0.0'
+    'packageVersion=1.0.0',
+    'packageAuthors=devhl',
+    'packageDescription="A wrapper for the CoinMarketCap API"',
+    'packageTags=coinmarketcap',
+    'packageCompany=devhl',
+    'packageCopyright=2021',
+    'packageLicense=..\..\..\LICENSE'
 ) -join ","
 
 $global = @(
-    'apiDocs=false'
+    'apiDocs=false',
     'modelDocs=false',
     'apiTests=true',
     'modelTests=false'
@@ -29,7 +34,12 @@ java -jar $jar generate `
     --library generichost `
     --additional-properties $properties `
     --global-property $global `
+    --package-name 'devhl.Cmc' `
+    --git-host "github.com" `
+    --git-repo-id "CoinMarketCap" `
+    --git-user-id "devhl-labs" `
     -t $templates
+    # --release-note "" `
 
 $readme = Resolve-Path -Path $PSScriptRoot\..\..\generated-src\README.md
 $src = Resolve-Path -Path $PSScriptRoot\..\..

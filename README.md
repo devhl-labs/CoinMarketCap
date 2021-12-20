@@ -6,7 +6,7 @@
 ```ps1
 $properties = @(
     'projectName=Cmc'
-    'packageName=Cmc',
+    'packageName=devhl.Cmc',
     'targetFramework=net5.0'
     'validatable=false',
     'nullableReferenceTypes=true',
@@ -38,9 +38,9 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Cmc.Api;
-using Cmc.Client;
-using Cmc.Model;
+using devhl.Cmc.Api;
+using devhl.Cmc.Client;
+using devhl.Cmc.Model;
 
 namespace YourProject
 {
@@ -123,7 +123,7 @@ Authentication schemes defined for the API:
 
 ## Build
 - SDK version: 1.0.0
-- Build date: 2021-12-19T18:48:30.452379500-05:00[America/New_York]
+- Build date: 2021-12-20T02:40:00.309599900-05:00[America/New_York]
 - Build package: org.openapitools.codegen.languages.CSharpNetCoreClientCodegen
 
 ## Api Configuration
@@ -159,9 +159,9 @@ Authentication schemes defined for the API:
 - optionalEmitDefaultValues: false
 - optionalMethodArgument: true
 - optionalProjectFile: 
-- packageGuid: {88868F79-2310-4EAC-8624-568C34941319}
-- packageName: Cmc
-- packageTags: 
+- packageGuid: {EFF4D6A3-E829-430C-BC37-F6620B68F66F}
+- packageName: devhl.Cmc
+- packageTags: coinmarketcap
 - packageVersion: 1.0.0
 - projectName: Cmc
 - releaseNote: Minor update
