@@ -11,13 +11,13 @@ $properties = @(
     'nullableReferenceTypes=true',
     'hideGenerationTimestamp=false',
     'packageVersion=1.0.0-prerelease0.0.1',
-    'packageAuthors="devhl"',
-    'packageCompany="devhl"',
+    'packageAuthors=devhl',
+    'packageCompany=devhl',
     'packageCopyright=2021',
-    'packageDescription="A wrapper for the CoinMarketCap API"',
-    'licenseId="MIT"',
-    'packageName="devhl.CoinMarketCap"',
-    'packageTags="CoinMarketCap crypto currency api"',
+    'packageDescription=A wrapper for the CoinMarketCap API',
+    'licenseId=MIT',
+    'packageName=devhl.CoinMarketCap',
+    'packageTags=CoinMarketCap crypto currency api',
     'packageTitle=CoinMarketCap'
 ) -join ","
 
@@ -127,7 +127,7 @@ Authentication schemes defined for the API:
 
 ## Build
 - SDK version: 1.0.0-prerelease0.0.1
-- Build date: 2021-12-31T15:33:51.200141600-05:00[America/New_York]
+- Build date: 2021-12-31T15:57:48.342268400-05:00[America/New_York]
 - Build package: org.openapitools.codegen.languages.CSharpNetCoreClientCodegen
 
 ## Api Information
@@ -171,7 +171,7 @@ Authentication schemes defined for the API:
 - packageCompany: devhl
 - packageCopyright: 2021
 - packageDescription: A wrapper for the CoinMarketCap API
-- packageGuid: {66254D23-5388-4230-88E1-17856B837326}
+- packageGuid: {176EAB92-3D30-4653-A441-88B4795CB398}
 - packageName: devhl.CoinMarketCap
 - packageTags: CoinMarketCap crypto currency api
 - packageTitle: CoinMarketCap
