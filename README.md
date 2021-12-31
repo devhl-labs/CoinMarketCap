@@ -5,12 +5,12 @@
 
 ```ps1
 $properties = @(
-    'apiName=Api',
+    'apiName=Cmc',
     'targetFramework=net5.0',
     'validatable=false',
     'nullableReferenceTypes=true',
     'hideGenerationTimestamp=false',
-    'packageVersion=1.0.0-prerelease0.0.1',
+    'packageVersion=1.0.0-prerelease0.0.2',
     'packageAuthors=devhl',
     'packageCompany=devhl',
     'packageCopyright=2021',
@@ -66,7 +66,7 @@ namespace YourProject
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-          .ConfigureApi((context, options) =>
+          .ConfigureCmc((context, options) =>
           {
               // the type of token here depends on the api security specifications
               ApiKeyToken token = new("<your token>");
@@ -80,7 +80,7 @@ namespace YourProject
                   // your custom converters if any
               });
 
-              options.AddApiHttpClients(builder: builder => builder
+              options.AddCmcHttpClients(builder: builder => builder
                 .AddRetryPolicy(2)
                 .AddTimeoutPolicy(TimeSpan.FromSeconds(5))
                 .AddCircuitBreakerPolicy(10, TimeSpan.FromSeconds(30))
@@ -126,8 +126,8 @@ Authentication schemes defined for the API:
 - **Location**: HTTP header
 
 ## Build
-- SDK version: 1.0.0-prerelease0.0.1
-- Build date: 2021-12-31T15:57:48.342268400-05:00[America/New_York]
+- SDK version: 1.0.0-prerelease0.0.2
+- Build date: 2021-12-31T16:33:36.647950200-05:00[America/New_York]
 - Build package: org.openapitools.codegen.languages.CSharpNetCoreClientCodegen
 
 ## Api Information
@@ -148,7 +148,7 @@ Authentication schemes defined for the API:
 
 ## [OpenApi Generator Parameteres](https://openapi-generator.tech/docs/generators/csharp-netcore)
 - allowUnicodeIdentifiers: 
-- apiName: Api
+- apiName: Cmc
 - caseInsensitiveResponseHeaders: 
 - conditionalSerialization: false
 - disallowAdditionalPropertiesIfNotPresent: 
@@ -171,11 +171,11 @@ Authentication schemes defined for the API:
 - packageCompany: devhl
 - packageCopyright: 2021
 - packageDescription: A wrapper for the CoinMarketCap API
-- packageGuid: {176EAB92-3D30-4653-A441-88B4795CB398}
+- packageGuid: {A53CF710-286C-4D5C-8FEC-92450F815B02}
 - packageName: devhl.CoinMarketCap
 - packageTags: CoinMarketCap crypto currency api
 - packageTitle: CoinMarketCap
-- packageVersion: 1.0.0-prerelease0.0.1
+- packageVersion: 1.0.0-prerelease0.0.2
 - releaseNote: The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62
 - returnICollection: false
 - sortParamsByRequiredFlag: 

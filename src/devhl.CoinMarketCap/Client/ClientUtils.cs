@@ -247,7 +247,7 @@ namespace devhl.CoinMarketCap.Client
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="options"></param>
-        public static IHostBuilder ConfigureApi(this IHostBuilder builder, Action<HostBuilderContext, HostConfiguration> options)
+        public static IHostBuilder ConfigureCmc(this IHostBuilder builder, Action<HostBuilderContext, HostConfiguration> options)
         {
             builder.ConfigureServices((context, services) => 
             {
@@ -255,7 +255,7 @@ namespace devhl.CoinMarketCap.Client
 
                 options(context, config);
 
-                AddApi(services, config);
+                AddCmc(services, config);
             });
 
             return builder;
@@ -266,17 +266,17 @@ namespace devhl.CoinMarketCap.Client
         /// </summary>
         /// <param name="services"></param>
         /// <param name="options"></param>
-        public static void AddApi(this IServiceCollection services, Action<HostConfiguration> options)
+        public static void AddCmc(this IServiceCollection services, Action<HostConfiguration> options)
         {
             HostConfiguration config = new HostConfiguration(services);
             options(config);
-            AddApi(services, config);
+            AddCmc(services, config);
         }
 
-        private static void AddApi(IServiceCollection services, HostConfiguration host)
+        private static void AddCmc(IServiceCollection services, HostConfiguration host)
         {
             if (!host.HttpClientsAdded)
-                host.AddApiHttpClients();
+                host.AddCmcHttpClients();
 
             // ensure that a token provider was provided for this token type
             // if not, default to RateLimitProvider

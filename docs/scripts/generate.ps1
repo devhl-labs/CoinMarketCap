@@ -5,12 +5,12 @@ $output = Resolve-Path -Path $PSScriptRoot\..\..
 # $templates = Resolve-Path -Path $PSScriptRoot\..\templates
 
 $properties = @(
-    "projectName=Cmc",
+    "apiName=Cmc",
     "targetFramework=net5.0",
     "validatable=false",
     "nullableReferenceTypes=true",
     "hideGenerationTimestamp=false",
-    "packageVersion=1.0.0-prerelease0.0.1",
+    "packageVersion=1.0.0-prerelease0.0.2",
     "packageAuthors=devhl",
     "packageDescription=A wrapper for the CoinMarketCap API",
     "packageTags=CoinMarketCap crypto currency api",

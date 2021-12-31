@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 VisualStudioVersion = 12.0.0.0
 MinimumVisualStudioVersion = 10.0.0.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "devhl.CoinMarketCap", "src\devhl.CoinMarketCap\devhl.CoinMarketCap.csproj", "{176EAB92-3D30-4653-A441-88B4795CB398}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "devhl.CoinMarketCap", "src\devhl.CoinMarketCap\devhl.CoinMarketCap.csproj", "{A53CF710-286C-4D5C-8FEC-92450F815B02}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "devhl.CoinMarketCap.Test", "src\devhl.CoinMarketCap.Test\devhl.CoinMarketCap.Test.csproj", "{19F1DEBC-DE5E-4517-8062-F000CD499087}"
 EndProject
@@ -12,10 +12,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{176EAB92-3D30-4653-A441-88B4795CB398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{176EAB92-3D30-4653-A441-88B4795CB398}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{176EAB92-3D30-4653-A441-88B4795CB398}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{176EAB92-3D30-4653-A441-88B4795CB398}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A53CF710-286C-4D5C-8FEC-92450F815B02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A53CF710-286C-4D5C-8FEC-92450F815B02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A53CF710-286C-4D5C-8FEC-92450F815B02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A53CF710-286C-4D5C-8FEC-92450F815B02}.Release|Any CPU.Build.0 = Release|Any CPU
 		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Release|Any CPU.ActiveCfg = Release|Any CPU

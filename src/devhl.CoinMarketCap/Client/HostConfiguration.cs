@@ -48,7 +48,7 @@ namespace devhl.CoinMarketCap.Client
         /// <param name="client"></param>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public HostConfiguration AddApiHttpClients<TBlockchainApi, TCryptocurrencyApi, TExchangeApi, TFiatApi, TGlobalMetricsApi, TKeyApi, TToolsApi>
+        public HostConfiguration AddCmcHttpClients<TBlockchainApi, TCryptocurrencyApi, TExchangeApi, TFiatApi, TGlobalMetricsApi, TKeyApi, TToolsApi>
         (
             Action<HttpClient>? client = null, Action<IHttpClientBuilder>? builder = null)
             where TBlockchainApi : class, IBlockchainApi
@@ -85,10 +85,10 @@ namespace devhl.CoinMarketCap.Client
         /// <param name="client"></param>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public HostConfiguration AddApiHttpClients(
+        public HostConfiguration AddCmcHttpClients(
             Action<HttpClient>? client = null, Action<IHttpClientBuilder>? builder = null)
         {
-            AddApiHttpClients<BlockchainApi, CryptocurrencyApi, ExchangeApi, FiatApi, GlobalMetricsApi, KeyApi, ToolsApi>(client, builder);
+            AddCmcHttpClients<BlockchainApi, CryptocurrencyApi, ExchangeApi, FiatApi, GlobalMetricsApi, KeyApi, ToolsApi>(client, builder);
 
             return this;
         }

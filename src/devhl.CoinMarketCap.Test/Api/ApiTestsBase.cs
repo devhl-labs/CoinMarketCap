@@ -50,7 +50,7 @@ namespace devhl.CoinMarketCap.Test.Api
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-            .ConfigureApi((context, options) =>
+            .ConfigureCmc((context, options) =>
             {
                 ApiKeyToken apiKeyToken = new ApiKeyToken(context.Configuration["COIN_MARKET_CAP_API_TOKEN"], string.Empty, TimeSpan.FromSeconds(1));
                 options.AddTokens(apiKeyToken);

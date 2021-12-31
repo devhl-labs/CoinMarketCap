@@ -25,7 +25,7 @@ namespace devhl.CoinMarketCap.Test.Api
     public class DependencyInjectionTest
     {
         private readonly IHost _hostUsingConfigureWithoutAClient = 
-            Host.CreateDefaultBuilder(Array.Empty<string>()).ConfigureApi((context, options) =>
+            Host.CreateDefaultBuilder(Array.Empty<string>()).ConfigureCmc((context, options) =>
             {
                 ApiKeyToken apiKeyToken = new ApiKeyToken($"<token>", timeout: TimeSpan.FromSeconds(1));
                 options.AddTokens(apiKeyToken);
@@ -34,19 +34,19 @@ namespace devhl.CoinMarketCap.Test.Api
             .Build();
 
         private readonly IHost _hostUsingConfigureWithAClient =
-            Host.CreateDefaultBuilder(Array.Empty<string>()).ConfigureApi((context, options) =>
+            Host.CreateDefaultBuilder(Array.Empty<string>()).ConfigureCmc((context, options) =>
             {
                 ApiKeyToken apiKeyToken = new ApiKeyToken($"<token>", timeout: TimeSpan.FromSeconds(1));
                 options.AddTokens(apiKeyToken);
                 
-                options.AddApiHttpClients(client => client.BaseAddress = new Uri(ClientUtils.BASE_ADDRESS));
+                options.AddCmcHttpClients(client => client.BaseAddress = new Uri(ClientUtils.BASE_ADDRESS));
             })
             .Build();
 
         private readonly IHost _hostUsingAddWithoutAClient =
             Host.CreateDefaultBuilder(Array.Empty<string>()).ConfigureServices((host, services) =>
             {
-                services.AddApi(options =>
+                services.AddCmc(options =>
                 {
                     ApiKeyToken apiKeyToken = new ApiKeyToken($"<token>", timeout: TimeSpan.FromSeconds(1));
                     options.AddTokens(apiKeyToken);
@@ -58,12 +58,12 @@ namespace devhl.CoinMarketCap.Test.Api
         private readonly IHost _hostUsingAddWithAClient =
             Host.CreateDefaultBuilder(Array.Empty<string>()).ConfigureServices((host, services) =>
             {
-                services.AddApi(options =>
+                services.AddCmc(options =>
                 {
                     ApiKeyToken apiKeyToken = new ApiKeyToken($"<token>", timeout: TimeSpan.FromSeconds(1));
                     options.AddTokens(apiKeyToken);
                     
-                    options.AddApiHttpClients(client => client.BaseAddress = new Uri(ClientUtils.BASE_ADDRESS));
+                    options.AddCmcHttpClients(client => client.BaseAddress = new Uri(ClientUtils.BASE_ADDRESS));
                 });
             })
             .Build();
