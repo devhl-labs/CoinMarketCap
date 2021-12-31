@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31321.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "devhl.CoinMarketCap", "src\devhl.CoinMarketCap\devhl.CoinMarketCap.csproj", "{84ACD503-8A21-4F65-86B1-B94955114EAE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "devhl.CoinMarketCap.Test", "src\devhl.CoinMarketCap.Test\devhl.CoinMarketCap.Test.csproj", "{19F1DEBC-DE5E-4517-8062-F000CD499087}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84ACD503-8A21-4F65-86B1-B94955114EAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84ACD503-8A21-4F65-86B1-B94955114EAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84ACD503-8A21-4F65-86B1-B94955114EAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84ACD503-8A21-4F65-86B1-B94955114EAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19F1DEBC-DE5E-4517-8062-F000CD499087}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9E60EF9D-1109-457A-B784-0C1CE45835B9}
+	EndGlobalSection
+EndGlobal

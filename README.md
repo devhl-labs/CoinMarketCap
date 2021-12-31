@@ -5,13 +5,13 @@
 
 ```ps1
 $properties = @(
-    'projectName=Cmc'
-    'packageName=devhl.Cmc',
+    'apiName=Api'
+    'packageName=devhl.CoinMarketCap',
     'targetFramework=net5.0'
     'validatable=false',
     'nullableReferenceTypes=true',
     'hideGenerationTimestamp=false',
-    'packageVersion=1.0.0'
+    'packageVersion=1.0.0-prerelease0.0.1'
 ) -join ","
 
 $global = @(
@@ -38,9 +38,9 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using devhl.Cmc.Api;
-using devhl.Cmc.Client;
-using devhl.Cmc.Model;
+using devhl.CoinMarketCap.Api;
+using devhl.CoinMarketCap.Client;
+using devhl.CoinMarketCap.Model;
 
 namespace YourProject
 {
@@ -56,11 +56,11 @@ namespace YourProject
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-          .ConfigureCmc((context, options) =>
+          .ConfigureApi((context, options) =>
           {
               // the type of token here depends on the api security specifications
               ApiKeyToken token = new("<your token>");
-              options.UseTokens(token);
+              options.AddTokens(token);
 
               // optionally choose the method the tokens will be provided with, default is RateLimitProvider
               options.UseProvider<RateLimitProvider<ApiKeyToken>, ApiKeyToken>();
@@ -70,7 +70,7 @@ namespace YourProject
                   // your custom converters if any
               });
 
-              options.ConfigureClients(client => client
+              options.AddApiHttpClients(builder: builder => builder
                 .AddRetryPolicy(2)
                 .AddTimeoutPolicy(TimeSpan.FromSeconds(5))
                 .AddCircuitBreakerPolicy(10, TimeSpan.FromSeconds(30))
@@ -122,8 +122,8 @@ Authentication schemes defined for the API:
 - **Location**: HTTP header
 
 ## Build
-- SDK version: 1.0.0
-- Build date: 2021-12-20T02:40:00.309599900-05:00[America/New_York]
+- SDK version: 1.0.0-prerelease0.0.1
+- Build date: 2021-12-31T02:17:32.025116-05:00[America/New_York]
 - Build package: org.openapitools.codegen.languages.CSharpNetCoreClientCodegen
 
 ## Api Configuration
@@ -144,6 +144,7 @@ Authentication schemes defined for the API:
 
 ## [OpenApi Generator Parameteres](https://openapi-generator.tech/docs/generators/csharp-netcore)
 - allowUnicodeIdentifiers: 
+- apiName: Api
 - caseInsensitiveResponseHeaders: 
 - conditionalSerialization: false
 - disallowAdditionalPropertiesIfNotPresent: 
@@ -159,12 +160,11 @@ Authentication schemes defined for the API:
 - optionalEmitDefaultValues: false
 - optionalMethodArgument: true
 - optionalProjectFile: 
-- packageGuid: {EFF4D6A3-E829-430C-BC37-F6620B68F66F}
-- packageName: devhl.Cmc
-- packageTags: coinmarketcap
-- packageVersion: 1.0.0
-- projectName: Cmc
-- releaseNote: Minor update
+- packageGuid: {84ACD503-8A21-4F65-86B1-B94955114EAE}
+- packageName: devhl.CoinMarketCap
+- packageTags: CoinMarketCap crypto currency api
+- packageVersion: 1.0.0-prerelease0.0.1
+- releaseNote: The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62
 - returnICollection: false
 - sortParamsByRequiredFlag: 
 - sourceFolder: src

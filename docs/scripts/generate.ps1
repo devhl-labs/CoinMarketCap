@@ -1,9 +1,8 @@
 $ErrorActionPreference = "Stop"
 $jar = Resolve-Path -Path $PSScriptRoot\..\..\..\openapi-generator\modules\openapi-generator-cli\target\openapi-generator-cli.jar
-$swagger = Resolve-Path -Path $PSScriptRoot\..\swagger.yml
-New-Item -Path $PSScriptRoot\..\..\generated-src -ItemType Directory -Force
-$output = Resolve-Path -Path $PSScriptRoot\..\..\generated-src
-$templates = Resolve-Path -Path $PSScriptRoot\..\templates
+$swagger = Resolve-Path -Path $PSScriptRoot\..\..\..\CoinMarketCap-Swagger\swagger.yaml
+$output = Resolve-Path -Path $PSScriptRoot\..\..
+# $templates = Resolve-Path -Path $PSScriptRoot\..\templates
 
 $properties = @(
     'projectName=Cmc',
@@ -11,13 +10,14 @@ $properties = @(
     'validatable=false',
     'nullableReferenceTypes=true',
     'hideGenerationTimestamp=false',
-    'packageVersion=1.0.0',
+    'packageVersion=1.0.0-prerelease0.0.1',
     'packageAuthors=devhl',
     'packageDescription="A wrapper for the CoinMarketCap API"',
-    'packageTags=coinmarketcap',
+    'packageTags="CoinMarketCap crypto currency api"',
     'packageCompany=devhl',
     'packageCopyright=2021',
-    'packageLicense=..\..\..\LICENSE'
+    'packageLicense=..\..\..\LICENSE',
+    'packageTitle=CoinMarketCap'
 ) -join ","
 
 $global = @(
@@ -34,13 +34,9 @@ java -jar $jar generate `
     --library generichost `
     --additional-properties $properties `
     --global-property $global `
-    --package-name 'devhl.Cmc' `
+    --package-name 'devhl.CoinMarketCap' `
     --git-host "github.com" `
     --git-repo-id "CoinMarketCap" `
     --git-user-id "devhl-labs" `
-    -t $templates
-    # --release-note "" `
-
-$readme = Resolve-Path -Path $PSScriptRoot\..\..\generated-src\README.md
-$src = Resolve-Path -Path $PSScriptRoot\..\..
-Copy-Item -Path $readme -Destination $src -Force
+    --release-note "The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62" `
+    # -t $templates
