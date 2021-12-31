@@ -5,19 +5,20 @@ $output = Resolve-Path -Path $PSScriptRoot\..\..
 # $templates = Resolve-Path -Path $PSScriptRoot\..\templates
 
 $properties = @(
-    'projectName=Cmc',
-    'targetFramework=net5.0',
-    'validatable=false',
-    'nullableReferenceTypes=true',
-    'hideGenerationTimestamp=false',
-    'packageVersion=1.0.0-prerelease0.0.1',
-    'packageAuthors=devhl',
-    'packageDescription="A wrapper for the CoinMarketCap API"',
-    'packageTags="CoinMarketCap crypto currency api"',
-    'packageCompany=devhl',
-    'packageCopyright=2021',
-    'packageLicense=..\..\..\LICENSE',
-    'packageTitle=CoinMarketCap'
+    "projectName=Cmc",
+    "targetFramework=net5.0",
+    "validatable=false",
+    "nullableReferenceTypes=true",
+    "hideGenerationTimestamp=false",
+    "packageVersion=1.0.0-prerelease0.0.1",
+    "packageAuthors=devhl",
+    "packageDescription=A wrapper for the CoinMarketCap API",
+    "packageTags=CoinMarketCap crypto currency api",
+    "packageName=devhl.CoinMarketCap",
+    "packageCompany=devhl",
+    "packageCopyright=2021",
+    "licenseId=MIT",
+    "packageTitle=CoinMarketCap"
 ) -join ","
 
 $global = @(
@@ -34,9 +35,9 @@ java -jar $jar generate `
     --library generichost `
     --additional-properties $properties `
     --global-property $global `
-    --package-name 'devhl.CoinMarketCap' `
     --git-host "github.com" `
     --git-repo-id "CoinMarketCap" `
     --git-user-id "devhl-labs" `
     --release-note "The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62" `
     # -t $templates
+    #--package-name 'devhl.CoinMarketCap' `

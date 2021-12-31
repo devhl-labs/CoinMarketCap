@@ -5,29 +5,41 @@
 
 ```ps1
 $properties = @(
-    'apiName=Api'
-    'packageName=devhl.CoinMarketCap',
-    'targetFramework=net5.0'
+    'apiName=Api',
+    'targetFramework=net5.0',
     'validatable=false',
     'nullableReferenceTypes=true',
     'hideGenerationTimestamp=false',
-    'packageVersion=1.0.0-prerelease0.0.1'
+    'packageVersion=1.0.0-prerelease0.0.1',
+    'packageAuthors="devhl"',
+    'packageCompany="devhl"',
+    'packageCopyright=2021',
+    'packageDescription="A wrapper for the CoinMarketCap API"',
+    'licenseId="MIT"',
+    'packageName="devhl.CoinMarketCap"',
+    'packageTags="CoinMarketCap crypto currency api"',
+    'packageTitle=CoinMarketCap'
 ) -join ","
 
 $global = @(
-    'apiDocs=false'
+    'apiDocs=false',
     'modelDocs=false',
     'apiTests=true',
-    'modelTests=false',
+    'modelTests=false'
 ) -join ","
 
 java -jar "<path>/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar" generate `
     -g csharp-netcore `
-    --library generichost `
-    -i <your-swagger-file>.yml `
+    -i <your-swagger-file>.yaml `
     -o <your-output-folder> `
+    --library generichost `
     --additional-properties $properties `
-    --global-property $global
+    --global-property $global `
+    --git-host "github.com" `
+    --git-repo-id "CoinMarketCap" `
+    --git-user-id "devhl-labs" `
+    --release-note "The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62"
+    # -t templates
 ```
 
 <a name="usage"></a>
@@ -49,9 +61,7 @@ namespace YourProject
         public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-
             var api = host.Services.GetRequiredService<IBlockchainApi>();
-            
             ApiResponse<BlockchainStatisticsLatestResponseModel?> foo = await api.GetV1BlockchainStatisticsLatestWithHttpInfoAsync("todo");
         }
 
@@ -93,12 +103,6 @@ namespace YourProject
   StatusCode and ReasonPhrase will contain information about the error.
   If the return type is T, then it will throw. If the return type is TOrDefault, it will return null.
 
-<a name="notes"></a>
-## Notes
-
-- If you are not using .Net Standard, consider setting validatable to false in your generator-config.json due to this bug: https://github.com/dotnet/project-system/issues/3934
-- If you want to override the provided mustache templates, provide generate the library with the -t parameter and the folder name which stores your templates.
-
 <a name="dependencies"></a>
 ## Dependencies
 
@@ -123,10 +127,10 @@ Authentication schemes defined for the API:
 
 ## Build
 - SDK version: 1.0.0-prerelease0.0.1
-- Build date: 2021-12-31T02:17:32.025116-05:00[America/New_York]
+- Build date: 2021-12-31T15:33:51.200141600-05:00[America/New_York]
 - Build package: org.openapitools.codegen.languages.CSharpNetCoreClientCodegen
 
-## Api Configuration
+## Api Information
 - appName: CoinMarketCap Cryptocurrency API Documentation
 - appVersion: 1.26.0
 - appDescription: # Introduction The CoinMarketCap API is a suite of high-performance RESTful JSON endpoints that are specifically designed to meet the mission-critical demands of application developers, data scientists, and enterprise business platforms.  This API reference includes all technical documentation developers need to integrate third-party applications and platforms. Additional answers to common questions can be found in the [CoinMarketCap API FAQ](https://coinmarketcap.com/api/faq).  # Quick Start Guide  For developers eager to hit the ground running with the CoinMarketCap API here are a few quick steps to make your first call with the API.  1. **Sign up for a free Developer Portal account.** You can sign up at [pro.coinmarketcap.com](https://pro.coinmarketcap.com) - This is our live production environment with the latest market data. Select the free &#x60;Basic&#x60; plan if it meets your needs or upgrade to a paid tier. 2. **Copy your API Key.** Once you sign up you&#39;ll land on your Developer Portal account dashboard. Copy your API from the &#x60;API Key&#x60; box in the top left panel. 3. **Make a test call using your key.** You may use the code examples provided below to make a test call with your programming language of choice. This example [fetches all active cryptocurrencies by market cap and return market values in USD](https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start&#x3D;1&amp;limit&#x3D;5000&amp;convert&#x3D;USD).     *Be sure to replace the API Key in sample code with your own and use API domain &#x60;pro-api.coinmarketcap.com&#x60; or use the test API Key &#x60;b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c&#x60; for &#x60;sandbox-api.coinmarketcap.com&#x60; testing with our sandbox.coinmarketcap.com environment. Please note that our sandbox api has mock data and should not be used in your application.*
@@ -148,10 +152,13 @@ Authentication schemes defined for the API:
 - caseInsensitiveResponseHeaders: 
 - conditionalSerialization: false
 - disallowAdditionalPropertiesIfNotPresent: 
+- gitHost: github.com
+- gitRepoId: CoinMarketCap
+- gitUserId: devhl-labs
 - hideGenerationTimestamp: false
 - interfacePrefix: I
 - library: generichost
-- licenseId: 
+- licenseId: MIT
 - modelPropertyNaming: 
 - netCoreProjectFile: false
 - nonPublicApi: false
@@ -160,9 +167,14 @@ Authentication schemes defined for the API:
 - optionalEmitDefaultValues: false
 - optionalMethodArgument: true
 - optionalProjectFile: 
-- packageGuid: {84ACD503-8A21-4F65-86B1-B94955114EAE}
+- packageAuthors: devhl
+- packageCompany: devhl
+- packageCopyright: 2021
+- packageDescription: A wrapper for the CoinMarketCap API
+- packageGuid: {66254D23-5388-4230-88E1-17856B837326}
 - packageName: devhl.CoinMarketCap
 - packageTags: CoinMarketCap crypto currency api
+- packageTitle: CoinMarketCap
 - packageVersion: 1.0.0-prerelease0.0.1
 - releaseNote: The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62
 - returnICollection: false

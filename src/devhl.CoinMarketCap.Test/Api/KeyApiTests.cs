@@ -23,9 +23,10 @@ using devhl.CoinMarketCap.Model;
 * 1. Navigate to ApiTests.Base.cs and ensure any tokens are being created correctly.
 *    Take care not to commit credentials to any repository.
 *
-# 2. If you want to mock the server's response, use method AddApiHttpClients
-     and provide your mock classes.
-
+* 2. Mocking is coordinated by ApiTestsBase#AddApiHttpClients.
+*    To mock the client, use the generic AddApiHttpClients.
+*    To mock the server, change the client's BaseAddress.
+*
 * 3. Locate the test you want below
 *      - remove the skip property from the Fact attribute
 *      - set the value of any variables if necessary
