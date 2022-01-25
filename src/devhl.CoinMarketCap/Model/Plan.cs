@@ -114,7 +114,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class Plan {\n");
             sb.Append("  CreditLimitDaily: ").Append(CreditLimitDaily).Append("\n");
             sb.Append("  CreditLimitDailyReset: ").Append(CreditLimitDailyReset).Append("\n");
@@ -154,8 +154,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(Plan input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.CreditLimitDaily == input.CreditLimitDaily ||
@@ -200,17 +201,25 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.CreditLimitDaily.GetHashCode();
+                hashCode = (hashCode * 59) + this.CreditLimitDaily.GetHashCode();
                 if (this.CreditLimitDailyReset != null)
-                    hashCode = hashCode * 59 + this.CreditLimitDailyReset.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CreditLimitDailyReset.GetHashCode();
+                }
                 if (this.CreditLimitDailyResetTimestamp != null)
-                    hashCode = hashCode * 59 + this.CreditLimitDailyResetTimestamp.GetHashCode();
-                hashCode = hashCode * 59 + this.CreditLimitMonthly.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CreditLimitDailyResetTimestamp.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.CreditLimitMonthly.GetHashCode();
                 if (this.CreditLimitMonthlyReset != null)
-                    hashCode = hashCode * 59 + this.CreditLimitMonthlyReset.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CreditLimitMonthlyReset.GetHashCode();
+                }
                 if (this.CreditLimitMonthlyResetTimestamp != null)
-                    hashCode = hashCode * 59 + this.CreditLimitMonthlyResetTimestamp.GetHashCode();
-                hashCode = hashCode * 59 + this.RateLimitMinute.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CreditLimitMonthlyResetTimestamp.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.RateLimitMinute.GetHashCode();
                 return hashCode;
             }
         }

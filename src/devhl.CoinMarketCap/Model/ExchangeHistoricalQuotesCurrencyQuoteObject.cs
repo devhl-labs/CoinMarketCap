@@ -68,7 +68,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ExchangeHistoricalQuotesCurrencyQuoteObject {\n");
             sb.Append("  Volume24hr: ").Append(Volume24hr).Append("\n");
             sb.Append("  Timestamp: ").Append(Timestamp).Append("\n");
@@ -103,8 +103,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ExchangeHistoricalQuotesCurrencyQuoteObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Volume24hr == input.Volume24hr ||
@@ -126,9 +127,11 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Volume24hr.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume24hr.GetHashCode();
                 if (this.Timestamp != null)
-                    hashCode = hashCode * 59 + this.Timestamp.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Timestamp.GetHashCode();
+                }
                 return hashCode;
             }
         }

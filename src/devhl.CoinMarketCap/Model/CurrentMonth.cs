@@ -67,7 +67,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CurrentMonth {\n");
             sb.Append("  CreditsUsed: ").Append(CreditsUsed).Append("\n");
             sb.Append("  CreditsLeft: ").Append(CreditsLeft).Append("\n");
@@ -102,8 +102,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CurrentMonth input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.CreditsUsed == input.CreditsUsed ||
@@ -124,8 +125,8 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.CreditsUsed.GetHashCode();
-                hashCode = hashCode * 59 + this.CreditsLeft.GetHashCode();
+                hashCode = (hashCode * 59) + this.CreditsUsed.GetHashCode();
+                hashCode = (hashCode * 59) + this.CreditsLeft.GetHashCode();
                 return hashCode;
             }
         }

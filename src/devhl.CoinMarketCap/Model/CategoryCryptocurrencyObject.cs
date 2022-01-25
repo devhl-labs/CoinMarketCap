@@ -161,7 +161,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CategoryCryptocurrencyObject {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
@@ -206,8 +206,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CategoryCryptocurrencyObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Id == input.Id ||
@@ -274,23 +275,33 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Id.GetHashCode();
+                hashCode = (hashCode * 59) + this.Id.GetHashCode();
                 if (this.Name != null)
-                    hashCode = hashCode * 59 + this.Name.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Name.GetHashCode();
+                }
                 if (this.Title != null)
-                    hashCode = hashCode * 59 + this.Title.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Title.GetHashCode();
+                }
                 if (this.Description != null)
-                    hashCode = hashCode * 59 + this.Description.GetHashCode();
-                hashCode = hashCode * 59 + this.NumTokens.GetHashCode();
-                hashCode = hashCode * 59 + this.AvgPriceChange.GetHashCode();
-                hashCode = hashCode * 59 + this.MarketCap.GetHashCode();
-                hashCode = hashCode * 59 + this.MarketCapChange.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume.GetHashCode();
-                hashCode = hashCode * 59 + this.VolumeChange.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Description.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.NumTokens.GetHashCode();
+                hashCode = (hashCode * 59) + this.AvgPriceChange.GetHashCode();
+                hashCode = (hashCode * 59) + this.MarketCap.GetHashCode();
+                hashCode = (hashCode * 59) + this.MarketCapChange.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume.GetHashCode();
+                hashCode = (hashCode * 59) + this.VolumeChange.GetHashCode();
                 if (this.Coins != null)
-                    hashCode = hashCode * 59 + this.Coins.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Coins.GetHashCode();
+                }
                 if (this.LastUpdated != null)
-                    hashCode = hashCode * 59 + this.LastUpdated.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.LastUpdated.GetHashCode();
+                }
                 return hashCode;
             }
         }

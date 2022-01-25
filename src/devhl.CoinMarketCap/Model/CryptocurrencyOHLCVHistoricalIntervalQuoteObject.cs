@@ -101,7 +101,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CryptocurrencyOHLCVHistoricalIntervalQuoteObject {\n");
             sb.Append("  TimeOpen: ").Append(TimeOpen).Append("\n");
             sb.Append("  TimeClose: ").Append(TimeClose).Append("\n");
@@ -139,8 +139,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CryptocurrencyOHLCVHistoricalIntervalQuoteObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.TimeOpen == input.TimeOpen ||
@@ -179,15 +180,25 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.TimeOpen != null)
-                    hashCode = hashCode * 59 + this.TimeOpen.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.TimeOpen.GetHashCode();
+                }
                 if (this.TimeClose != null)
-                    hashCode = hashCode * 59 + this.TimeClose.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.TimeClose.GetHashCode();
+                }
                 if (this.TimeHigh != null)
-                    hashCode = hashCode * 59 + this.TimeHigh.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.TimeHigh.GetHashCode();
+                }
                 if (this.TimeLow != null)
-                    hashCode = hashCode * 59 + this.TimeLow.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.TimeLow.GetHashCode();
+                }
                 if (this.Quote != null)
-                    hashCode = hashCode * 59 + this.Quote.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Quote.GetHashCode();
+                }
                 return hashCode;
             }
         }

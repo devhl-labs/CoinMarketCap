@@ -2,6 +2,7 @@
 README.md
 appveyor.yml
 devhl.CoinMarketCap.sln
+docs/scripts/git_push.ps1
 docs/scripts/git_push.sh
 src/devhl.CoinMarketCap.Test/Api/DependencyInjectionTests.cs
 src/devhl.CoinMarketCap.Test/devhl.CoinMarketCap.Test.csproj

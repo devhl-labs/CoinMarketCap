@@ -3,42 +3,32 @@
 #
 # Usage example: /bin/sh ./git_push.sh wing328 openapi-petstore-perl "minor update" "gitlab.com"
 
-git_user_id=$1
-git_repo_id=$2
-release_note=$3
-git_host=$4
+git_user_id=${1:-devhl-labs}
+git_repo_id=${2:-CoinMarketCap}
+release_note=${3:-The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62}
+git_host=${4:-github.com}
 
-if [ "$git_host" = "" ]; then
-    git_host="github.com"
-    echo "[INFO] No command line input provided. Set \$git_host to $git_host"
+starting_directory=$(pwd)
+script_root="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+cd $script_root
+cd ../..
+
+if [ "$release_note" = "" ] || [ "$release_note" = "Minor update" ]; then
+    # it seems unlikely that we would want our git commit message to be the default, so lets prompt the user
+    echo "Please provide a commit message or press enter"
+    read user_input
+    release_note=$user_input
+    if [ "$release_note" = "" ]; then
+        release_note="no message provided"
+    fi
 fi
 
-if [ "$git_user_id" = "" ]; then
-    git_user_id="devhl-labs"
-    echo "[INFO] No command line input provided. Set \$git_user_id to $git_user_id"
-fi
-
-if [ "$git_repo_id" = "" ]; then
-    git_repo_id="CoinMarketCap"
-    echo "[INFO] No command line input provided. Set \$git_repo_id to $git_repo_id"
-fi
-
-if [ "$release_note" = "" ]; then
-    release_note="The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62"
-    echo "[INFO] No command line input provided. Set \$release_note to $release_note"
-fi
-
-# Initialize the local directory as a Git repository
 git init
-
-# Adds the files in the local repository and stages them for commit.
 git add .
-
-# Commits the tracked changes and prepares them to be pushed to a remote repository.
-git commit -m "$release_note"
-
-# Sets the new remote
+git commit -am "$release_note"
+branch_name=$(git rev-parse --abbrev-ref HEAD)
 git_remote=$(git remote)
+
 if [ "$git_remote" = "" ]; then # git remote not defined
 
     if [ "$GIT_TOKEN" = "" ]; then
@@ -50,8 +40,10 @@ if [ "$git_remote" = "" ]; then # git remote not defined
 
 fi
 
-git pull origin master
+echo "[INFO] Pulling from https://${git_host}/${git_user_id}/${git_repo_id}.git"
+git pull origin $branch_name --ff-only
 
-# Pushes (Forces) the changes in the local repository up to the remote repository
-echo "Git pushing to https://${git_host}/${git_user_id}/${git_repo_id}.git"
-git push origin master 2>&1 | grep -v 'To https'
+echo "[INFO] Pushing to https://${git_host}/${git_user_id}/${git_repo_id}.git"
+git push origin $branch_name
+
+cd $starting_directory

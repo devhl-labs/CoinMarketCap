@@ -62,7 +62,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class GlobalMetricsQuotesHistoricResultsObject {\n");
             sb.Append("  Quotes: ").Append(Quotes).Append("\n");
             sb.Append("}\n");
@@ -96,8 +96,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(GlobalMetricsQuotesHistoricResultsObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Quotes == input.Quotes ||
@@ -117,7 +118,9 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.Quotes != null)
-                    hashCode = hashCode * 59 + this.Quotes.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Quotes.GetHashCode();
+                }
                 return hashCode;
             }
         }

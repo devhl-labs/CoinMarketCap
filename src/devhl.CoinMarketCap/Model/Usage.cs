@@ -85,7 +85,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class Usage {\n");
             sb.Append("  CurrentMinute: ").Append(CurrentMinute).Append("\n");
             sb.Append("  CurrentDay: ").Append(CurrentDay).Append("\n");
@@ -121,8 +121,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(Usage input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.CurrentMinute == input.CurrentMinute ||
@@ -151,11 +152,17 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.CurrentMinute != null)
-                    hashCode = hashCode * 59 + this.CurrentMinute.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CurrentMinute.GetHashCode();
+                }
                 if (this.CurrentDay != null)
-                    hashCode = hashCode * 59 + this.CurrentDay.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CurrentDay.GetHashCode();
+                }
                 if (this.CurrentMonth != null)
-                    hashCode = hashCode * 59 + this.CurrentMonth.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CurrentMonth.GetHashCode();
+                }
                 return hashCode;
             }
         }

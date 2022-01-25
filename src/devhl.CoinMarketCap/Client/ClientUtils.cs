@@ -293,7 +293,7 @@ namespace devhl.CoinMarketCap.Client
                 {
                     services.AddSingleton(typeof(RateLimitProvider<>).MakeGenericType(tokenType));
                     services.AddSingleton(typeof(TokenProvider<>).MakeGenericType(tokenType), 
-                        services => services.GetRequiredService(typeof(RateLimitProvider<>).MakeGenericType(tokenType)));
+                        s => s.GetRequiredService(typeof(RateLimitProvider<>).MakeGenericType(tokenType)));
                 }
             }
         }

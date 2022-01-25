@@ -190,87 +190,87 @@ namespace devhl.CoinMarketCap.Api
                     
                 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/tools/price-conversion";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-
-                parseQueryString["amount"] = Uri.EscapeDataString(amount.ToString()!);
-                
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (time != null)
-                    parseQueryString["time"] = Uri.EscapeDataString(time.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/tools/price-conversion";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+
+                    parseQueryString["amount"] = Uri.EscapeDataString(amount.ToString()!);
+                    
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (time != null)
+                        parseQueryString["time"] = Uri.EscapeDataString(time.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/tools/price-conversion"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/tools/price-conversion"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<ToolsPriceConversionResponseModel?> apiResponse = new ApiResponse<ToolsPriceConversionResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ToolsPriceConversionResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<ToolsPriceConversionResponseModel?> apiResponse = new ApiResponse<ToolsPriceConversionResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ToolsPriceConversionResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");

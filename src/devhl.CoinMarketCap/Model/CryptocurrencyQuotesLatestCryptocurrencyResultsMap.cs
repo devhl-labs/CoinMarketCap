@@ -61,7 +61,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CryptocurrencyQuotesLatestCryptocurrencyResultsMap {\n");
             sb.Append("  ").Append(base.ToString().Replace("\n", "\n  ")).Append("\n");
             sb.Append("  Key: ").Append(Key).Append("\n");
@@ -96,8 +96,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CryptocurrencyQuotesLatestCryptocurrencyResultsMap input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return base.Equals(input) && 
                 (
                     this.Key == input.Key ||
@@ -116,7 +117,9 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = base.GetHashCode();
                 if (this.Key != null)
-                    hashCode = hashCode * 59 + this.Key.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Key.GetHashCode();
+                }
                 return hashCode;
             }
         }

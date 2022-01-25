@@ -167,7 +167,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class BlockchainStatisticsLatestBlockchainObject {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  Slug: ").Append(Slug).Append("\n");
@@ -213,8 +213,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(BlockchainStatisticsLatestBlockchainObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Id == input.Id ||
@@ -287,27 +288,43 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Id.GetHashCode();
+                hashCode = (hashCode * 59) + this.Id.GetHashCode();
                 if (this.Slug != null)
-                    hashCode = hashCode * 59 + this.Slug.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Slug.GetHashCode();
+                }
                 if (this.Symbol != null)
-                    hashCode = hashCode * 59 + this.Symbol.GetHashCode();
-                hashCode = hashCode * 59 + this.BlockRewardStatic.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Symbol.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.BlockRewardStatic.GetHashCode();
                 if (this.ConsensusMechanism != null)
-                    hashCode = hashCode * 59 + this.ConsensusMechanism.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.ConsensusMechanism.GetHashCode();
+                }
                 if (this.Difficulty != null)
-                    hashCode = hashCode * 59 + this.Difficulty.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Difficulty.GetHashCode();
+                }
                 if (this.Hashrate24h != null)
-                    hashCode = hashCode * 59 + this.Hashrate24h.GetHashCode();
-                hashCode = hashCode * 59 + this.PendingTransactions.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Hashrate24h.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.PendingTransactions.GetHashCode();
                 if (this.ReductionRate != null)
-                    hashCode = hashCode * 59 + this.ReductionRate.GetHashCode();
-                hashCode = hashCode * 59 + this.TotalBlocks.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.ReductionRate.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.TotalBlocks.GetHashCode();
                 if (this.TotalTransactions != null)
-                    hashCode = hashCode * 59 + this.TotalTransactions.GetHashCode();
-                hashCode = hashCode * 59 + this.Tps24h.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.TotalTransactions.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.Tps24h.GetHashCode();
                 if (this.FirstBlockTimestamp != null)
-                    hashCode = hashCode * 59 + this.FirstBlockTimestamp.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.FirstBlockTimestamp.GetHashCode();
+                }
                 return hashCode;
             }
         }

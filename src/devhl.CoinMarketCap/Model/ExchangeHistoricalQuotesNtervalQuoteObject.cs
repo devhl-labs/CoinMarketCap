@@ -80,7 +80,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ExchangeHistoricalQuotesNtervalQuoteObject {\n");
             sb.Append("  Timestamp: ").Append(Timestamp).Append("\n");
             sb.Append("  NumMarketPairs: ").Append(NumMarketPairs).Append("\n");
@@ -116,8 +116,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ExchangeHistoricalQuotesNtervalQuoteObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Timestamp == input.Timestamp ||
@@ -145,10 +146,14 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.Timestamp != null)
-                    hashCode = hashCode * 59 + this.Timestamp.GetHashCode();
-                hashCode = hashCode * 59 + this.NumMarketPairs.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Timestamp.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.NumMarketPairs.GetHashCode();
                 if (this.Quote != null)
-                    hashCode = hashCode * 59 + this.Quote.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Quote.GetHashCode();
+                }
                 return hashCode;
             }
         }

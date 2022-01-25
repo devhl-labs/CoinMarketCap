@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using Microsoft.Extensions.Hosting;
 using devhl.CoinMarketCap.Client;
+using Microsoft.Extensions.Configuration;
 
 
 /* *********************************************************************************
@@ -50,11 +51,14 @@ namespace devhl.CoinMarketCap.Test.Api
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration(hostBuilder =>
+            {
+                hostBuilder.AddEnvironmentVariables("CoinMarketCap_common_");
+            })
             .ConfigureCmc((context, options) =>
             {
-                ApiKeyToken apiKeyToken = new ApiKeyToken(context.Configuration["COIN_MARKET_CAP_API_TOKEN"], string.Empty, TimeSpan.FromSeconds(1));
+                ApiKeyToken apiKeyToken = new (context.Configuration["Cmc:Token"], string.Empty, TimeSpan.FromSeconds(1));
                 options.AddTokens(apiKeyToken);
-
             });
     }
 }

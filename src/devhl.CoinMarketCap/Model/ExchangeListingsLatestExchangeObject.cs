@@ -153,7 +153,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ExchangeListingsLatestExchangeObject {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
@@ -197,8 +197,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ExchangeListingsLatestExchangeObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Id == input.Id ||
@@ -261,23 +262,35 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Id.GetHashCode();
+                hashCode = (hashCode * 59) + this.Id.GetHashCode();
                 if (this.Name != null)
-                    hashCode = hashCode * 59 + this.Name.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Name.GetHashCode();
+                }
                 if (this.Slug != null)
-                    hashCode = hashCode * 59 + this.Slug.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Slug.GetHashCode();
+                }
                 if (this.NumMarketPairs != null)
-                    hashCode = hashCode * 59 + this.NumMarketPairs.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.NumMarketPairs.GetHashCode();
+                }
                 if (this.DateLaunched != null)
-                    hashCode = hashCode * 59 + this.DateLaunched.GetHashCode();
-                hashCode = hashCode * 59 + this.ExchangeScore.GetHashCode();
-                hashCode = hashCode * 59 + this.LiquidityScore.GetHashCode();
-                hashCode = hashCode * 59 + this.Rank.GetHashCode();
-                hashCode = hashCode * 59 + this.TrafficScore.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.DateLaunched.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.ExchangeScore.GetHashCode();
+                hashCode = (hashCode * 59) + this.LiquidityScore.GetHashCode();
+                hashCode = (hashCode * 59) + this.Rank.GetHashCode();
+                hashCode = (hashCode * 59) + this.TrafficScore.GetHashCode();
                 if (this.LastUpdated != null)
-                    hashCode = hashCode * 59 + this.LastUpdated.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.LastUpdated.GetHashCode();
+                }
                 if (this.Quote != null)
-                    hashCode = hashCode * 59 + this.Quote.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Quote.GetHashCode();
+                }
                 return hashCode;
             }
         }

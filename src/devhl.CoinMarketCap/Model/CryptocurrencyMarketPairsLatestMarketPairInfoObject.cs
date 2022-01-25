@@ -202,7 +202,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CryptocurrencyMarketPairsLatestMarketPairInfoObject {\n");
             sb.Append("  Exchange: ").Append(Exchange).Append("\n");
             sb.Append("  MarketId: ").Append(MarketId).Append("\n");
@@ -244,8 +244,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CryptocurrencyMarketPairsLatestMarketPairInfoObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Exchange == input.Exchange ||
@@ -301,20 +302,32 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.Exchange != null)
-                    hashCode = hashCode * 59 + this.Exchange.GetHashCode();
-                hashCode = hashCode * 59 + this.MarketId.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Exchange.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.MarketId.GetHashCode();
                 if (this.MarketPair != null)
-                    hashCode = hashCode * 59 + this.MarketPair.GetHashCode();
-                hashCode = hashCode * 59 + this.Category.GetHashCode();
-                hashCode = hashCode * 59 + this.FeeType.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.MarketPair.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.Category.GetHashCode();
+                hashCode = (hashCode * 59) + this.FeeType.GetHashCode();
                 if (this.MarketUrl != null)
-                    hashCode = hashCode * 59 + this.MarketUrl.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.MarketUrl.GetHashCode();
+                }
                 if (this.MarkPairBase != null)
-                    hashCode = hashCode * 59 + this.MarkPairBase.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.MarkPairBase.GetHashCode();
+                }
                 if (this.MarkPairQuote != null)
-                    hashCode = hashCode * 59 + this.MarkPairQuote.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.MarkPairQuote.GetHashCode();
+                }
                 if (this.Quote != null)
-                    hashCode = hashCode * 59 + this.Quote.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Quote.GetHashCode();
+                }
                 return hashCode;
             }
         }

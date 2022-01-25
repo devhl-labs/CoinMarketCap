@@ -73,7 +73,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ExchangeMarketPairsLatestMarketPairQuoteObject {\n");
             sb.Append("  ExchangeReported: ").Append(ExchangeReported).Append("\n");
             sb.Append("  Key: ").Append(Key).Append("\n");
@@ -108,8 +108,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ExchangeMarketPairsLatestMarketPairQuoteObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.ExchangeReported == input.ExchangeReported ||
@@ -133,9 +134,13 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.ExchangeReported != null)
-                    hashCode = hashCode * 59 + this.ExchangeReported.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.ExchangeReported.GetHashCode();
+                }
                 if (this.Key != null)
-                    hashCode = hashCode * 59 + this.Key.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Key.GetHashCode();
+                }
                 return hashCode;
             }
         }

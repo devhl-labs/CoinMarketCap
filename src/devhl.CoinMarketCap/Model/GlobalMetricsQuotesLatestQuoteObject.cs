@@ -113,7 +113,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class GlobalMetricsQuotesLatestQuoteObject {\n");
             sb.Append("  TotalMarketCap: ").Append(TotalMarketCap).Append("\n");
             sb.Append("  TotalVolume24h: ").Append(TotalVolume24h).Append("\n");
@@ -153,8 +153,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(GlobalMetricsQuotesLatestQuoteObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.TotalMarketCap == input.TotalMarketCap ||
@@ -196,14 +197,16 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.TotalMarketCap.GetHashCode();
-                hashCode = hashCode * 59 + this.TotalVolume24h.GetHashCode();
-                hashCode = hashCode * 59 + this.TotalVolume24hReported.GetHashCode();
-                hashCode = hashCode * 59 + this.AltcoinVolume24h.GetHashCode();
-                hashCode = hashCode * 59 + this.AltcoinVolume24hReported.GetHashCode();
-                hashCode = hashCode * 59 + this.AltcoinMarketCap.GetHashCode();
+                hashCode = (hashCode * 59) + this.TotalMarketCap.GetHashCode();
+                hashCode = (hashCode * 59) + this.TotalVolume24h.GetHashCode();
+                hashCode = (hashCode * 59) + this.TotalVolume24hReported.GetHashCode();
+                hashCode = (hashCode * 59) + this.AltcoinVolume24h.GetHashCode();
+                hashCode = (hashCode * 59) + this.AltcoinVolume24hReported.GetHashCode();
+                hashCode = (hashCode * 59) + this.AltcoinMarketCap.GetHashCode();
                 if (this.LastUpdated != null)
-                    hashCode = hashCode * 59 + this.LastUpdated.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.LastUpdated.GetHashCode();
+                }
                 return hashCode;
             }
         }

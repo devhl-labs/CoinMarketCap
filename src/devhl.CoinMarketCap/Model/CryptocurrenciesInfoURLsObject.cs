@@ -166,7 +166,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CryptocurrenciesInfoURLsObject {\n");
             sb.Append("  Website: ").Append(Website).Append("\n");
             sb.Append("  TechnicalDoc: ").Append(TechnicalDoc).Append("\n");
@@ -208,8 +208,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CryptocurrenciesInfoURLsObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Website == input.Website ||
@@ -277,23 +278,41 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.Website != null)
-                    hashCode = hashCode * 59 + this.Website.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Website.GetHashCode();
+                }
                 if (this.TechnicalDoc != null)
-                    hashCode = hashCode * 59 + this.TechnicalDoc.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.TechnicalDoc.GetHashCode();
+                }
                 if (this.Explorer != null)
-                    hashCode = hashCode * 59 + this.Explorer.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Explorer.GetHashCode();
+                }
                 if (this.SourceCode != null)
-                    hashCode = hashCode * 59 + this.SourceCode.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.SourceCode.GetHashCode();
+                }
                 if (this.MessageBoard != null)
-                    hashCode = hashCode * 59 + this.MessageBoard.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.MessageBoard.GetHashCode();
+                }
                 if (this.Chat != null)
-                    hashCode = hashCode * 59 + this.Chat.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Chat.GetHashCode();
+                }
                 if (this.Announcement != null)
-                    hashCode = hashCode * 59 + this.Announcement.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Announcement.GetHashCode();
+                }
                 if (this.Reddit != null)
-                    hashCode = hashCode * 59 + this.Reddit.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Reddit.GetHashCode();
+                }
                 if (this.Twitter != null)
-                    hashCode = hashCode * 59 + this.Twitter.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Twitter.GetHashCode();
+                }
                 return hashCode;
             }
         }

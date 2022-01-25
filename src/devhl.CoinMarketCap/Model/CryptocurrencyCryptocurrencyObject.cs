@@ -188,7 +188,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CryptocurrencyCryptocurrencyObject {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
@@ -236,8 +236,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CryptocurrencyCryptocurrencyObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Id == input.Id ||
@@ -319,29 +320,45 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Id.GetHashCode();
+                hashCode = (hashCode * 59) + this.Id.GetHashCode();
                 if (this.Name != null)
-                    hashCode = hashCode * 59 + this.Name.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Name.GetHashCode();
+                }
                 if (this.Symbol != null)
-                    hashCode = hashCode * 59 + this.Symbol.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Symbol.GetHashCode();
+                }
                 if (this.Slug != null)
-                    hashCode = hashCode * 59 + this.Slug.GetHashCode();
-                hashCode = hashCode * 59 + this.CmcRank.GetHashCode();
-                hashCode = hashCode * 59 + this.NumMarketPairs.GetHashCode();
-                hashCode = hashCode * 59 + this.CirculatingSupply.GetHashCode();
-                hashCode = hashCode * 59 + this.TotalSupply.GetHashCode();
-                hashCode = hashCode * 59 + this.MarketCapByTotalSupply.GetHashCode();
-                hashCode = hashCode * 59 + this.MaxSupply.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Slug.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.CmcRank.GetHashCode();
+                hashCode = (hashCode * 59) + this.NumMarketPairs.GetHashCode();
+                hashCode = (hashCode * 59) + this.CirculatingSupply.GetHashCode();
+                hashCode = (hashCode * 59) + this.TotalSupply.GetHashCode();
+                hashCode = (hashCode * 59) + this.MarketCapByTotalSupply.GetHashCode();
+                hashCode = (hashCode * 59) + this.MaxSupply.GetHashCode();
                 if (this.LastUpdated != null)
-                    hashCode = hashCode * 59 + this.LastUpdated.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.LastUpdated.GetHashCode();
+                }
                 if (this.DateAdded != null)
-                    hashCode = hashCode * 59 + this.DateAdded.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.DateAdded.GetHashCode();
+                }
                 if (this.Tags != null)
-                    hashCode = hashCode * 59 + this.Tags.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Tags.GetHashCode();
+                }
                 if (this.Platform != null)
-                    hashCode = hashCode * 59 + this.Platform.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Platform.GetHashCode();
+                }
                 if (this.Quote != null)
-                    hashCode = hashCode * 59 + this.Quote.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Quote.GetHashCode();
+                }
                 return hashCode;
             }
         }

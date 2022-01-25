@@ -125,7 +125,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ExchangesInfoExchangeInfoObject {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
@@ -166,8 +166,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ExchangesInfoExchangeInfoObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Id == input.Id ||
@@ -219,21 +220,35 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Id.GetHashCode();
+                hashCode = (hashCode * 59) + this.Id.GetHashCode();
                 if (this.Name != null)
-                    hashCode = hashCode * 59 + this.Name.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Name.GetHashCode();
+                }
                 if (this.Slug != null)
-                    hashCode = hashCode * 59 + this.Slug.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Slug.GetHashCode();
+                }
                 if (this.Logo != null)
-                    hashCode = hashCode * 59 + this.Logo.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Logo.GetHashCode();
+                }
                 if (this.Description != null)
-                    hashCode = hashCode * 59 + this.Description.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Description.GetHashCode();
+                }
                 if (this.DateLaunched != null)
-                    hashCode = hashCode * 59 + this.DateLaunched.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.DateLaunched.GetHashCode();
+                }
                 if (this.Notice != null)
-                    hashCode = hashCode * 59 + this.Notice.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Notice.GetHashCode();
+                }
                 if (this.Urls != null)
-                    hashCode = hashCode * 59 + this.Urls.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Urls.GetHashCode();
+                }
                 return hashCode;
             }
         }

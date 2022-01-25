@@ -171,81 +171,81 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/fiat/map";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (sort != null)
-                    parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
-
-                if (includeMetals != null)
-                    parseQueryString["include_metals"] = Uri.EscapeDataString(includeMetals.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/fiat/map";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (sort != null)
+                        parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
+
+                    if (includeMetals != null)
+                        parseQueryString["include_metals"] = Uri.EscapeDataString(includeMetals.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/fiat/map"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/fiat/map"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<FiatMapResponseModel?> apiResponse = new ApiResponse<FiatMapResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<FiatMapResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<FiatMapResponseModel?> apiResponse = new ApiResponse<FiatMapResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<FiatMapResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");

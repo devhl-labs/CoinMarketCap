@@ -158,7 +158,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ExchangeListingsLatestQuoteObject {\n");
             sb.Append("  LastUpdated: ").Append(LastUpdated).Append("\n");
             sb.Append("  Volume24h: ").Append(Volume24h).Append("\n");
@@ -203,8 +203,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ExchangeListingsLatestQuoteObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.LastUpdated == input.LastUpdated ||
@@ -267,18 +268,20 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.LastUpdated != null)
-                    hashCode = hashCode * 59 + this.LastUpdated.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume24h.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume24hAdjusted.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume7d.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume30d.GetHashCode();
-                hashCode = hashCode * 59 + this.PercentChangeVolume24h.GetHashCode();
-                hashCode = hashCode * 59 + this.PercentChangeVolume7d.GetHashCode();
-                hashCode = hashCode * 59 + this.PercentChangeVolume30d.GetHashCode();
-                hashCode = hashCode * 59 + this.EffectiveLiquidity24h.GetHashCode();
-                hashCode = hashCode * 59 + this.DerivativeVolume.GetHashCode();
-                hashCode = hashCode * 59 + this.OpenInterest.GetHashCode();
-                hashCode = hashCode * 59 + this.SpotVolumeUsd.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.LastUpdated.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.Volume24h.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume24hAdjusted.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume7d.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume30d.GetHashCode();
+                hashCode = (hashCode * 59) + this.PercentChangeVolume24h.GetHashCode();
+                hashCode = (hashCode * 59) + this.PercentChangeVolume7d.GetHashCode();
+                hashCode = (hashCode * 59) + this.PercentChangeVolume30d.GetHashCode();
+                hashCode = (hashCode * 59) + this.EffectiveLiquidity24h.GetHashCode();
+                hashCode = (hashCode * 59) + this.DerivativeVolume.GetHashCode();
+                hashCode = (hashCode * 59) + this.OpenInterest.GetHashCode();
+                hashCode = (hashCode * 59) + this.SpotVolumeUsd.GetHashCode();
                 return hashCode;
             }
         }

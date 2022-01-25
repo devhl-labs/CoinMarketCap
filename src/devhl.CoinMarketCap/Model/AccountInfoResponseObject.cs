@@ -73,7 +73,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class AccountInfoResponseObject {\n");
             sb.Append("  Plan: ").Append(Plan).Append("\n");
             sb.Append("  Usage: ").Append(Usage).Append("\n");
@@ -108,8 +108,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(AccountInfoResponseObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Plan == input.Plan ||
@@ -133,9 +134,13 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.Plan != null)
-                    hashCode = hashCode * 59 + this.Plan.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Plan.GetHashCode();
+                }
                 if (this.Usage != null)
-                    hashCode = hashCode * 59 + this.Usage.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Usage.GetHashCode();
+                }
                 return hashCode;
             }
         }

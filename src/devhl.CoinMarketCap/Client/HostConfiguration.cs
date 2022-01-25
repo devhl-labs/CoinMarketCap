@@ -59,7 +59,9 @@ namespace devhl.CoinMarketCap.Client
             where TKeyApi : class, IKeyApi
             where TToolsApi : class, IToolsApi
         {
-            client ??= c => c.BaseAddress = new Uri(ClientUtils.BASE_ADDRESS);
+            if (client == null)
+                client = c => c.BaseAddress = new Uri(ClientUtils.BASE_ADDRESS);
+
             List<IHttpClientBuilder> builders = new List<IHttpClientBuilder>();
             
             builders.Add(_services.AddHttpClient<IBlockchainApi, TBlockchainApi>(client));

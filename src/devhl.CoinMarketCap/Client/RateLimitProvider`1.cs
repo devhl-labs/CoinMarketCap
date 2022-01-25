@@ -13,9 +13,8 @@
 
 using System;
 using System.Threading.Channels;
-using devhl.CoinMarketCap.Client;
 
-namespace devhl.CoinMarketCap
+namespace devhl.CoinMarketCap.Client 
 {
     /// <summary>
     /// Provides a token to the api clients. Tokens will be rate limited based on the provided TimeSpan.
@@ -48,4 +47,4 @@ namespace devhl.CoinMarketCap
         internal override async System.Threading.Tasks.ValueTask<TTokenBase> GetAsync(System.Threading.CancellationToken? cancellation = null) 
             => await AvailableTokens.Reader.ReadAsync(cancellation.GetValueOrDefault()).ConfigureAwait(false);
     }
-}
+} 

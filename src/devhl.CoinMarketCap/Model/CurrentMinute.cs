@@ -67,7 +67,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CurrentMinute {\n");
             sb.Append("  RequestsMade: ").Append(RequestsMade).Append("\n");
             sb.Append("  RequestsLeft: ").Append(RequestsLeft).Append("\n");
@@ -102,8 +102,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CurrentMinute input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.RequestsMade == input.RequestsMade ||
@@ -124,8 +125,8 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.RequestsMade.GetHashCode();
-                hashCode = hashCode * 59 + this.RequestsLeft.GetHashCode();
+                hashCode = (hashCode * 59) + this.RequestsMade.GetHashCode();
+                hashCode = (hashCode * 59) + this.RequestsLeft.GetHashCode();
                 return hashCode;
             }
         }

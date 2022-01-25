@@ -1097,72 +1097,72 @@ namespace devhl.CoinMarketCap.Api
                     
                 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/airdrop";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-
-                parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-                
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/airdrop";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+
+                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/airdrop"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/airdrop"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<AirdropResponseModel?> apiResponse = new ApiResponse<AirdropResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<AirdropResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<AirdropResponseModel?> apiResponse = new ApiResponse<AirdropResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<AirdropResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -1236,87 +1236,87 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/airdrops";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (status != null)
-                    parseQueryString["status"] = Uri.EscapeDataString(status.ToString()!);
-
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/airdrops";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (status != null)
+                        parseQueryString["status"] = Uri.EscapeDataString(status.ToString()!);
+
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/airdrops"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/airdrops"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<AirdropsResponseModel?> apiResponse = new ApiResponse<AirdropsResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<AirdropsResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<AirdropsResponseModel?> apiResponse = new ApiResponse<AirdropsResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<AirdropsResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -1387,84 +1387,84 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/categories";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/categories";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/categories"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/categories"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CategoriesResponseModel?> apiResponse = new ApiResponse<CategoriesResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CategoriesResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CategoriesResponseModel?> apiResponse = new ApiResponse<CategoriesResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CategoriesResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -1542,84 +1542,84 @@ namespace devhl.CoinMarketCap.Api
                     
                 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/category";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-
-                parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-                
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/category";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+
+                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+                    
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/category"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/category"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CategoryResponseModel?> apiResponse = new ApiResponse<CategoryResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CategoryResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CategoryResponseModel?> apiResponse = new ApiResponse<CategoryResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CategoryResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -1690,84 +1690,84 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/info";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (address != null)
-                    parseQueryString["address"] = Uri.EscapeDataString(address.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/info";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (address != null)
+                        parseQueryString["address"] = Uri.EscapeDataString(address.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/info"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/info"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrenciesInfoResponseModel?> apiResponse = new ApiResponse<CryptocurrenciesInfoResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrenciesInfoResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrenciesInfoResponseModel?> apiResponse = new ApiResponse<CryptocurrenciesInfoResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrenciesInfoResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -1857,96 +1857,96 @@ namespace devhl.CoinMarketCap.Api
                     
                 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/listings/historical";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-
-                parseQueryString["date"] = Uri.EscapeDataString(date.ToString()!);
-                
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (sort != null)
-                    parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
-
-                if (sortDir != null)
-                    parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
-
-                if (cryptocurrencyType != null)
-                    parseQueryString["cryptocurrency_type"] = Uri.EscapeDataString(cryptocurrencyType.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/listings/historical";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+
+                    parseQueryString["date"] = Uri.EscapeDataString(date.ToString()!);
+                    
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (sort != null)
+                        parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
+
+                    if (sortDir != null)
+                        parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
+
+                    if (cryptocurrencyType != null)
+                        parseQueryString["cryptocurrency_type"] = Uri.EscapeDataString(cryptocurrencyType.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/listings/historical"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/listings/historical"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyListingsLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyListingsLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyListingsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyListingsLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyListingsLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyListingsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -2059,126 +2059,126 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/listings/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (priceMin != null)
-                    parseQueryString["price_min"] = Uri.EscapeDataString(priceMin.ToString()!);
-
-                if (priceMax != null)
-                    parseQueryString["price_max"] = Uri.EscapeDataString(priceMax.ToString()!);
-
-                if (marketCapMin != null)
-                    parseQueryString["market_cap_min"] = Uri.EscapeDataString(marketCapMin.ToString()!);
-
-                if (marketCapMax != null)
-                    parseQueryString["market_cap_max"] = Uri.EscapeDataString(marketCapMax.ToString()!);
-
-                if (volume24hMin != null)
-                    parseQueryString["volume_24h_min"] = Uri.EscapeDataString(volume24hMin.ToString()!);
-
-                if (volume24hMax != null)
-                    parseQueryString["volume_24h_max"] = Uri.EscapeDataString(volume24hMax.ToString()!);
-
-                if (circulatingSupplyMin != null)
-                    parseQueryString["circulating_supply_min"] = Uri.EscapeDataString(circulatingSupplyMin.ToString()!);
-
-                if (circulatingSupplyMax != null)
-                    parseQueryString["circulating_supply_max"] = Uri.EscapeDataString(circulatingSupplyMax.ToString()!);
-
-                if (percentChange24hMin != null)
-                    parseQueryString["percent_change_24h_min"] = Uri.EscapeDataString(percentChange24hMin.ToString()!);
-
-                if (percentChange24hMax != null)
-                    parseQueryString["percent_change_24h_max"] = Uri.EscapeDataString(percentChange24hMax.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (sort != null)
-                    parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
-
-                if (sortDir != null)
-                    parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
-
-                if (cryptocurrencyType != null)
-                    parseQueryString["cryptocurrency_type"] = Uri.EscapeDataString(cryptocurrencyType.ToString()!);
-
-                if (tag != null)
-                    parseQueryString["tag"] = Uri.EscapeDataString(tag.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/listings/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (priceMin != null)
+                        parseQueryString["price_min"] = Uri.EscapeDataString(priceMin.ToString()!);
+
+                    if (priceMax != null)
+                        parseQueryString["price_max"] = Uri.EscapeDataString(priceMax.ToString()!);
+
+                    if (marketCapMin != null)
+                        parseQueryString["market_cap_min"] = Uri.EscapeDataString(marketCapMin.ToString()!);
+
+                    if (marketCapMax != null)
+                        parseQueryString["market_cap_max"] = Uri.EscapeDataString(marketCapMax.ToString()!);
+
+                    if (volume24hMin != null)
+                        parseQueryString["volume_24h_min"] = Uri.EscapeDataString(volume24hMin.ToString()!);
+
+                    if (volume24hMax != null)
+                        parseQueryString["volume_24h_max"] = Uri.EscapeDataString(volume24hMax.ToString()!);
+
+                    if (circulatingSupplyMin != null)
+                        parseQueryString["circulating_supply_min"] = Uri.EscapeDataString(circulatingSupplyMin.ToString()!);
+
+                    if (circulatingSupplyMax != null)
+                        parseQueryString["circulating_supply_max"] = Uri.EscapeDataString(circulatingSupplyMax.ToString()!);
+
+                    if (percentChange24hMin != null)
+                        parseQueryString["percent_change_24h_min"] = Uri.EscapeDataString(percentChange24hMin.ToString()!);
+
+                    if (percentChange24hMax != null)
+                        parseQueryString["percent_change_24h_max"] = Uri.EscapeDataString(percentChange24hMax.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (sort != null)
+                        parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
+
+                    if (sortDir != null)
+                        parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
+
+                    if (cryptocurrencyType != null)
+                        parseQueryString["cryptocurrency_type"] = Uri.EscapeDataString(cryptocurrencyType.ToString()!);
+
+                    if (tag != null)
+                        parseQueryString["tag"] = Uri.EscapeDataString(tag.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/listings/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/listings/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyListingsLatestResponseModel1?> apiResponse = new ApiResponse<CryptocurrencyListingsLatestResponseModel1?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyListingsLatestResponseModel1>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyListingsLatestResponseModel1?> apiResponse = new ApiResponse<CryptocurrencyListingsLatestResponseModel1?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyListingsLatestResponseModel1>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -2249,84 +2249,84 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/listings/new";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (sortDir != null)
-                    parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/listings/new";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (sortDir != null)
+                        parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/listings/new"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/listings/new"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyListingsLatestResponseModel1?> apiResponse = new ApiResponse<CryptocurrencyListingsLatestResponseModel1?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyListingsLatestResponseModel1>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyListingsLatestResponseModel1?> apiResponse = new ApiResponse<CryptocurrencyListingsLatestResponseModel1?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyListingsLatestResponseModel1>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -2400,87 +2400,87 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/map";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (listingStatus != null)
-                    parseQueryString["listing_status"] = Uri.EscapeDataString(listingStatus.ToString()!);
-
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (sort != null)
-                    parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/map";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (listingStatus != null)
+                        parseQueryString["listing_status"] = Uri.EscapeDataString(listingStatus.ToString()!);
+
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (sort != null)
+                        parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/map"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/map"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyMapResponseModel?> apiResponse = new ApiResponse<CryptocurrencyMapResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyMapResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyMapResponseModel?> apiResponse = new ApiResponse<CryptocurrencyMapResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyMapResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -2578,111 +2578,111 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/market-pairs/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (sortDir != null)
-                    parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
-
-                if (sort != null)
-                    parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                if (matchedId != null)
-                    parseQueryString["matched_id"] = Uri.EscapeDataString(matchedId.ToString()!);
-
-                if (matchedSymbol != null)
-                    parseQueryString["matched_symbol"] = Uri.EscapeDataString(matchedSymbol.ToString()!);
-
-                if (category != null)
-                    parseQueryString["category"] = Uri.EscapeDataString(category.ToString()!);
-
-                if (feeType != null)
-                    parseQueryString["fee_type"] = Uri.EscapeDataString(feeType.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/market-pairs/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (sortDir != null)
+                        parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
+
+                    if (sort != null)
+                        parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    if (matchedId != null)
+                        parseQueryString["matched_id"] = Uri.EscapeDataString(matchedId.ToString()!);
+
+                    if (matchedSymbol != null)
+                        parseQueryString["matched_symbol"] = Uri.EscapeDataString(matchedSymbol.ToString()!);
+
+                    if (category != null)
+                        parseQueryString["category"] = Uri.EscapeDataString(category.ToString()!);
+
+                    if (feeType != null)
+                        parseQueryString["fee_type"] = Uri.EscapeDataString(feeType.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/market-pairs/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/market-pairs/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyMarketPairsLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyMarketPairsLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyMarketPairsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyMarketPairsLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyMarketPairsLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyMarketPairsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -2771,102 +2771,102 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/ohlcv/historical";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (timePeriod != null)
-                    parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
-
-                if (timeStart != null)
-                    parseQueryString["time_start"] = Uri.EscapeDataString(timeStart.ToString()!);
-
-                if (timeEnd != null)
-                    parseQueryString["time_end"] = Uri.EscapeDataString(timeEnd.ToString()!);
-
-                if (count != null)
-                    parseQueryString["count"] = Uri.EscapeDataString(count.ToString()!);
-
-                if (interval != null)
-                    parseQueryString["interval"] = Uri.EscapeDataString(interval.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (skipInvalid != null)
-                    parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/ohlcv/historical";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (timePeriod != null)
+                        parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
+
+                    if (timeStart != null)
+                        parseQueryString["time_start"] = Uri.EscapeDataString(timeStart.ToString()!);
+
+                    if (timeEnd != null)
+                        parseQueryString["time_end"] = Uri.EscapeDataString(timeEnd.ToString()!);
+
+                    if (count != null)
+                        parseQueryString["count"] = Uri.EscapeDataString(count.ToString()!);
+
+                    if (interval != null)
+                        parseQueryString["interval"] = Uri.EscapeDataString(interval.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (skipInvalid != null)
+                        parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/ohlcv/historical"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/ohlcv/historical"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyOHLCVHistoricalResponseModel?> apiResponse = new ApiResponse<CryptocurrencyOHLCVHistoricalResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyOHLCVHistoricalResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyOHLCVHistoricalResponseModel?> apiResponse = new ApiResponse<CryptocurrencyOHLCVHistoricalResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyOHLCVHistoricalResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -2937,84 +2937,84 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/ohlcv/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (skipInvalid != null)
-                    parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/ohlcv/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (skipInvalid != null)
+                        parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/ohlcv/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/ohlcv/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyOHLCVLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyOHLCVLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyOHLCVLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyOHLCVLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyOHLCVLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyOHLCVLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -3091,90 +3091,90 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/price-performance-stats/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (timePeriod != null)
-                    parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (skipInvalid != null)
-                    parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/price-performance-stats/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (timePeriod != null)
+                        parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (skipInvalid != null)
+                        parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/price-performance-stats/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/price-performance-stats/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyPricePerformanceStatsLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyPricePerformanceStatsLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyPricePerformanceStatsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyPricePerformanceStatsLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyPricePerformanceStatsLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyPricePerformanceStatsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -3260,99 +3260,99 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/quotes/historical";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (timeStart != null)
-                    parseQueryString["time_start"] = Uri.EscapeDataString(timeStart.ToString()!);
-
-                if (timeEnd != null)
-                    parseQueryString["time_end"] = Uri.EscapeDataString(timeEnd.ToString()!);
-
-                if (count != null)
-                    parseQueryString["count"] = Uri.EscapeDataString(count.ToString()!);
-
-                if (interval != null)
-                    parseQueryString["interval"] = Uri.EscapeDataString(interval.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                if (skipInvalid != null)
-                    parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/quotes/historical";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (timeStart != null)
+                        parseQueryString["time_start"] = Uri.EscapeDataString(timeStart.ToString()!);
+
+                    if (timeEnd != null)
+                        parseQueryString["time_end"] = Uri.EscapeDataString(timeEnd.ToString()!);
+
+                    if (count != null)
+                        parseQueryString["count"] = Uri.EscapeDataString(count.ToString()!);
+
+                    if (interval != null)
+                        parseQueryString["interval"] = Uri.EscapeDataString(interval.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    if (skipInvalid != null)
+                        parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/quotes/historical"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/quotes/historical"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyQuotesHistoricalResponseModel?> apiResponse = new ApiResponse<CryptocurrencyQuotesHistoricalResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyQuotesHistoricalResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyQuotesHistoricalResponseModel?> apiResponse = new ApiResponse<CryptocurrencyQuotesHistoricalResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyQuotesHistoricalResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -3429,90 +3429,90 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/quotes/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (symbol != null)
-                    parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                if (skipInvalid != null)
-                    parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/quotes/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (symbol != null)
+                        parseQueryString["symbol"] = Uri.EscapeDataString(symbol.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    if (skipInvalid != null)
+                        parseQueryString["skip_invalid"] = Uri.EscapeDataString(skipInvalid.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/quotes/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/quotes/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyQuotesLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyQuotesLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyQuotesLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyQuotesLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyQuotesLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyQuotesLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -3589,90 +3589,90 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/trending/gainers-losers";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (timePeriod != null)
-                    parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (sort != null)
-                    parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
-
-                if (sortDir != null)
-                    parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/trending/gainers-losers";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (timePeriod != null)
+                        parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (sort != null)
+                        parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
+
+                    if (sortDir != null)
+                        parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/trending/gainers-losers"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/trending/gainers-losers"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyTrendingGainersLosersResponseModel?> apiResponse = new ApiResponse<CryptocurrencyTrendingGainersLosersResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyTrendingGainersLosersResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyTrendingGainersLosersResponseModel?> apiResponse = new ApiResponse<CryptocurrencyTrendingGainersLosersResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyTrendingGainersLosersResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -3743,84 +3743,84 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/trending/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (timePeriod != null)
-                    parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/trending/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (timePeriod != null)
+                        parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/trending/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/trending/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyTrendingLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyTrendingLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyTrendingLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyTrendingLatestResponseModel?> apiResponse = new ApiResponse<CryptocurrencyTrendingLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyTrendingLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -3891,84 +3891,84 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/trending/most-visited";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (timePeriod != null)
-                    parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/cryptocurrency/trending/most-visited";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (timePeriod != null)
+                        parseQueryString["time_period"] = Uri.EscapeDataString(timePeriod.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/trending/most-visited"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/cryptocurrency/trending/most-visited"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<CryptocurrencyTrendingMostVisitedResponseModel?> apiResponse = new ApiResponse<CryptocurrencyTrendingMostVisitedResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyTrendingMostVisitedResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<CryptocurrencyTrendingMostVisitedResponseModel?> apiResponse = new ApiResponse<CryptocurrencyTrendingMostVisitedResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CryptocurrencyTrendingMostVisitedResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");

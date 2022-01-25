@@ -445,78 +445,78 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/info";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/info";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/info"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/info"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<ExchangesInfoResponseModel?> apiResponse = new ApiResponse<ExchangesInfoResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangesInfoResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<ExchangesInfoResponseModel?> apiResponse = new ApiResponse<ExchangesInfoResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangesInfoResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -599,96 +599,96 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/listings/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (sort != null)
-                    parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
-
-                if (sortDir != null)
-                    parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
-
-                if (marketType != null)
-                    parseQueryString["market_type"] = Uri.EscapeDataString(marketType.ToString()!);
-
-                if (category != null)
-                    parseQueryString["category"] = Uri.EscapeDataString(category.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/listings/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (sort != null)
+                        parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
+
+                    if (sortDir != null)
+                        parseQueryString["sort_dir"] = Uri.EscapeDataString(sortDir.ToString()!);
+
+                    if (marketType != null)
+                        parseQueryString["market_type"] = Uri.EscapeDataString(marketType.ToString()!);
+
+                    if (category != null)
+                        parseQueryString["category"] = Uri.EscapeDataString(category.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/listings/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/listings/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<ExchangeListingsLatestResponseModel?> apiResponse = new ApiResponse<ExchangeListingsLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeListingsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<ExchangeListingsLatestResponseModel?> apiResponse = new ApiResponse<ExchangeListingsLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeListingsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -765,90 +765,90 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/map";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (listingStatus != null)
-                    parseQueryString["listing_status"] = Uri.EscapeDataString(listingStatus.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (sort != null)
-                    parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                if (cryptoId != null)
-                    parseQueryString["crypto_id"] = Uri.EscapeDataString(cryptoId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/map";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (listingStatus != null)
+                        parseQueryString["listing_status"] = Uri.EscapeDataString(listingStatus.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (sort != null)
+                        parseQueryString["sort"] = Uri.EscapeDataString(sort.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    if (cryptoId != null)
+                        parseQueryString["crypto_id"] = Uri.EscapeDataString(cryptoId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/map"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/map"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<ExchangeMapResponseModel?> apiResponse = new ApiResponse<ExchangeMapResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeMapResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<ExchangeMapResponseModel?> apiResponse = new ApiResponse<ExchangeMapResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeMapResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -937,102 +937,102 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/market-pairs/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (start != null)
-                    parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
-
-                if (limit != null)
-                    parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                if (matchedId != null)
-                    parseQueryString["matched_id"] = Uri.EscapeDataString(matchedId.ToString()!);
-
-                if (matchedSymbol != null)
-                    parseQueryString["matched_symbol"] = Uri.EscapeDataString(matchedSymbol.ToString()!);
-
-                if (category != null)
-                    parseQueryString["category"] = Uri.EscapeDataString(category.ToString()!);
-
-                if (feeType != null)
-                    parseQueryString["fee_type"] = Uri.EscapeDataString(feeType.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/market-pairs/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (start != null)
+                        parseQueryString["start"] = Uri.EscapeDataString(start.ToString()!);
+
+                    if (limit != null)
+                        parseQueryString["limit"] = Uri.EscapeDataString(limit.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    if (matchedId != null)
+                        parseQueryString["matched_id"] = Uri.EscapeDataString(matchedId.ToString()!);
+
+                    if (matchedSymbol != null)
+                        parseQueryString["matched_symbol"] = Uri.EscapeDataString(matchedSymbol.ToString()!);
+
+                    if (category != null)
+                        parseQueryString["category"] = Uri.EscapeDataString(category.ToString()!);
+
+                    if (feeType != null)
+                        parseQueryString["fee_type"] = Uri.EscapeDataString(feeType.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/market-pairs/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/market-pairs/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<ExchangeMarketPairsLatestResponseModel?> apiResponse = new ApiResponse<ExchangeMarketPairsLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeMarketPairsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<ExchangeMarketPairsLatestResponseModel?> apiResponse = new ApiResponse<ExchangeMarketPairsLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeMarketPairsLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -1112,93 +1112,93 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/quotes/historical";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (timeStart != null)
-                    parseQueryString["time_start"] = Uri.EscapeDataString(timeStart.ToString()!);
-
-                if (timeEnd != null)
-                    parseQueryString["time_end"] = Uri.EscapeDataString(timeEnd.ToString()!);
-
-                if (count != null)
-                    parseQueryString["count"] = Uri.EscapeDataString(count.ToString()!);
-
-                if (interval != null)
-                    parseQueryString["interval"] = Uri.EscapeDataString(interval.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/quotes/historical";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (timeStart != null)
+                        parseQueryString["time_start"] = Uri.EscapeDataString(timeStart.ToString()!);
+
+                    if (timeEnd != null)
+                        parseQueryString["time_end"] = Uri.EscapeDataString(timeEnd.ToString()!);
+
+                    if (count != null)
+                        parseQueryString["count"] = Uri.EscapeDataString(count.ToString()!);
+
+                    if (interval != null)
+                        parseQueryString["interval"] = Uri.EscapeDataString(interval.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/quotes/historical"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/quotes/historical"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<ExchangeHistoricalQuotesResponseModel?> apiResponse = new ApiResponse<ExchangeHistoricalQuotesResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeHistoricalQuotesResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<ExchangeHistoricalQuotesResponseModel?> apiResponse = new ApiResponse<ExchangeHistoricalQuotesResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeHistoricalQuotesResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");
@@ -1269,84 +1269,84 @@ namespace devhl.CoinMarketCap.Api
         {
             try
             {
-                using HttpRequestMessage request = new HttpRequestMessage();
-
-                UriBuilder uriBuilder = new UriBuilder();
-                uriBuilder.Host = HttpClient.BaseAddress!.Host;
-                uriBuilder.Scheme = ClientUtils.SCHEME;
-                uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/quotes/latest";
-
-                System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-                if (id != null)
-                    parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
-
-                if (slug != null)
-                    parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
-
-                if (convert != null)
-                    parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
-
-                if (convertId != null)
-                    parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
-
-                if (aux != null)
-                    parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
-
-                uriBuilder.Query = parseQueryString.ToString();
-
-                MultipartContent multipartContent = new MultipartContent();
-
-                request.Content = multipartContent;
-
-                List<TokenBase> tokens = new List<TokenBase>();
-                    
-                ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
-                
-                tokens.Add(apiKey);
-                
-                apiKey.UseInHeader(request, "X-CMC_PRO_API_KEY");
-                
-                request.RequestUri = uriBuilder.Uri;
-                
-                string[] accepts = new string[] { 
-                    "*/*" 
-                };
-                
-                string? accept = ClientUtils.SelectHeaderAccept(accepts);
-
-                if (accept != null)
-                    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-                
-                request.Method = HttpMethod.Get;
-                
-                using HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                DateTime requestedAt = DateTime.UtcNow;
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
-
-                if (ApiResponded != null)
+                using (HttpRequestMessage request = new HttpRequestMessage())
                 {
-                    try
+                    UriBuilder uriBuilder = new UriBuilder();
+                    uriBuilder.Host = HttpClient.BaseAddress!.Host;
+                    uriBuilder.Scheme = ClientUtils.SCHEME;
+                    uriBuilder.Path = ClientUtils.CONTEXT_PATH + "/v1/exchange/quotes/latest";
+
+                    System.Collections.Specialized.NameValueCollection parseQueryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                    if (id != null)
+                        parseQueryString["id"] = Uri.EscapeDataString(id.ToString()!);
+
+                    if (slug != null)
+                        parseQueryString["slug"] = Uri.EscapeDataString(slug.ToString()!);
+
+                    if (convert != null)
+                        parseQueryString["convert"] = Uri.EscapeDataString(convert.ToString()!);
+
+                    if (convertId != null)
+                        parseQueryString["convert_id"] = Uri.EscapeDataString(convertId.ToString()!);
+
+                    if (aux != null)
+                        parseQueryString["aux"] = Uri.EscapeDataString(aux.ToString()!);
+
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    List<TokenBase> tokens = new List<TokenBase>();
+                    
+                    ApiKeyToken apiKey = (ApiKeyToken) await ApiKeyProvider.GetAsync(cancellationToken).ConfigureAwait(false);
+                    
+                    tokens.Add(apiKey);
+                    
+                    apiKey.UseInQuery(request, uriBuilder, parseQueryString, "CMC_PRO_API_KEY");
+                    
+                    uriBuilder.Query = parseQueryString.ToString();
+
+                    request.RequestUri = uriBuilder.Uri;
+                    
+                    string[] accepts = new string[] { 
+                        "*/*" 
+                    };
+                    
+                    string? accept = ClientUtils.SelectHeaderAccept(accepts);
+
+                    if (accept != null)
+                        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
+                    
+                    request.Method = HttpMethod.Get; 
+
+                    using (HttpResponseMessage responseMessage = await HttpClient.SendAsync(request, cancellationToken.GetValueOrDefault()).ConfigureAwait(false))
                     {
-                        ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/quotes/latest"));
-                    }
-                    catch(Exception e)
-                    {
-                        Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                        DateTime requestedAt = DateTime.UtcNow;
+
+                        string responseContent = await responseMessage.Content.ReadAsStringAsync(cancellationToken.GetValueOrDefault()).ConfigureAwait(false);
+
+                        if (ApiResponded != null)
+                        {
+                            try
+                            {
+                                ApiResponded.Invoke(this, new ApiResponseEventArgs(requestedAt, DateTime.UtcNow, responseMessage.StatusCode, "/v1/exchange/quotes/latest"));
+                            }
+                            catch(Exception e)
+                            {
+                                Logger.LogError(e, "An error occured while invoking ApiResponded.");
+                            }
+                        }
+
+                        ApiResponse<ExchangeQuotesLatestResponseModel?> apiResponse = new ApiResponse<ExchangeQuotesLatestResponseModel?>(responseMessage, responseContent);
+
+                        if (apiResponse.IsSuccessStatusCode)
+                            apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeQuotesLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
+                        else if (apiResponse.StatusCode == (HttpStatusCode) 429)
+                            foreach(TokenBase token in tokens)
+                                token.BeginRateLimit();
+
+                        return apiResponse;
                     }
                 }
-
-                ApiResponse<ExchangeQuotesLatestResponseModel?> apiResponse = new ApiResponse<ExchangeQuotesLatestResponseModel?>(responseMessage, responseContent);
-
-                if (apiResponse.IsSuccessStatusCode)
-                    apiResponse.Content = Newtonsoft.Json.JsonConvert.DeserializeObject<ExchangeQuotesLatestResponseModel>(apiResponse.RawContent, ClientUtils.JsonSerializerSettings);
-                else if (apiResponse.StatusCode == HttpStatusCode.TooManyRequests)
-                    foreach(TokenBase token in tokens)
-                        token.BeginRateLimit();
-
-                return apiResponse;
-            } 
+            }
             catch(Exception e)
             {
                 Logger.LogError(e, "An error occured while sending the request to the server.");

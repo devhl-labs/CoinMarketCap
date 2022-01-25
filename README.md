@@ -10,7 +10,7 @@ $properties = @(
     'validatable=false',
     'nullableReferenceTypes=true',
     'hideGenerationTimestamp=false',
-    'packageVersion=1.0.0-prerelease0.0.2',
+    'packageVersion=1.0.0-prerelease0.0.3',
     'packageAuthors=devhl',
     'packageCompany=devhl',
     'packageCopyright=2021',
@@ -122,12 +122,12 @@ Authentication schemes defined for the API:
 ### ApiKeyAuth
 
 - **Type**: API key
-- **API key parameter name**: X-CMC_PRO_API_KEY
-- **Location**: HTTP header
+- **API key parameter name**: CMC_PRO_API_KEY
+- **Location**: URL query string
 
 ## Build
-- SDK version: 1.0.0-prerelease0.0.2
-- Build date: 2021-12-31T16:33:36.647950200-05:00[America/New_York]
+- SDK version: 1.0.0-prerelease0.0.3
+- Build date: 2022-01-24T22:50:40.816-05:00[America/New_York]
 - Build package: org.openapitools.codegen.languages.CSharpNetCoreClientCodegen
 
 ## Api Information
@@ -171,11 +171,11 @@ Authentication schemes defined for the API:
 - packageCompany: devhl
 - packageCopyright: 2021
 - packageDescription: A wrapper for the CoinMarketCap API
-- packageGuid: {A53CF710-286C-4D5C-8FEC-92450F815B02}
+- packageGuid: {D18C1D8D-0478-41BF-BF36-3C2CC0B2811A}
 - packageName: devhl.CoinMarketCap
 - packageTags: CoinMarketCap crypto currency api
 - packageTitle: CoinMarketCap
-- packageVersion: 1.0.0-prerelease0.0.2
+- packageVersion: 1.0.0-prerelease0.0.3
 - releaseNote: The CMC swagger file is scuffed. To get your endpoint working view this change as an example, then submit a PR. https://github.com/devhl-labs/CoinMarketCap-Swagger/commit/5f25dfd24c9ba792cace35111ee9ca9d35b07771#diff-8b1949772e223a1da6a2049ada2733fa506410975b241cf86cf44c7a8665bc62
 - returnICollection: false
 - sortParamsByRequiredFlag: 

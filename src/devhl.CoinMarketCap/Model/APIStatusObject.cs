@@ -95,7 +95,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class APIStatusObject {\n");
             sb.Append("  Timestamp: ").Append(Timestamp).Append("\n");
             sb.Append("  ErrorCode: ").Append(ErrorCode).Append("\n");
@@ -133,8 +133,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(APIStatusObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Timestamp == input.Timestamp ||
@@ -170,12 +171,16 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.Timestamp != null)
-                    hashCode = hashCode * 59 + this.Timestamp.GetHashCode();
-                hashCode = hashCode * 59 + this.ErrorCode.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Timestamp.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.ErrorCode.GetHashCode();
                 if (this.ErrorMessage != null)
-                    hashCode = hashCode * 59 + this.ErrorMessage.GetHashCode();
-                hashCode = hashCode * 59 + this.Elapsed.GetHashCode();
-                hashCode = hashCode * 59 + this.CreditCount.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.ErrorMessage.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.Elapsed.GetHashCode();
+                hashCode = (hashCode * 59) + this.CreditCount.GetHashCode();
                 return hashCode;
             }
         }

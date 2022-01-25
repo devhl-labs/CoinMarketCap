@@ -185,7 +185,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CryptocurrencyListingsLatestQuoteObject1 {\n");
             sb.Append("  Price: ").Append(Price).Append("\n");
             sb.Append("  Volume24h: ").Append(Volume24h).Append("\n");
@@ -233,8 +233,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CryptocurrencyListingsLatestQuoteObject1 input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Price == input.Price ||
@@ -308,22 +309,24 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Price.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume24h.GetHashCode();
-                hashCode = hashCode * 59 + this.VolumeChange24h.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume24hReported.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume7d.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume7dReported.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume30d.GetHashCode();
-                hashCode = hashCode * 59 + this.Volume30dReported.GetHashCode();
-                hashCode = hashCode * 59 + this.MarketCap.GetHashCode();
-                hashCode = hashCode * 59 + this.MarketCapDominance.GetHashCode();
-                hashCode = hashCode * 59 + this.FullyDilutedMarketCap.GetHashCode();
-                hashCode = hashCode * 59 + this.PercentChange1h.GetHashCode();
-                hashCode = hashCode * 59 + this.PercentChange24h.GetHashCode();
-                hashCode = hashCode * 59 + this.PercentChange7d.GetHashCode();
+                hashCode = (hashCode * 59) + this.Price.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume24h.GetHashCode();
+                hashCode = (hashCode * 59) + this.VolumeChange24h.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume24hReported.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume7d.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume7dReported.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume30d.GetHashCode();
+                hashCode = (hashCode * 59) + this.Volume30dReported.GetHashCode();
+                hashCode = (hashCode * 59) + this.MarketCap.GetHashCode();
+                hashCode = (hashCode * 59) + this.MarketCapDominance.GetHashCode();
+                hashCode = (hashCode * 59) + this.FullyDilutedMarketCap.GetHashCode();
+                hashCode = (hashCode * 59) + this.PercentChange1h.GetHashCode();
+                hashCode = (hashCode * 59) + this.PercentChange24h.GetHashCode();
+                hashCode = (hashCode * 59) + this.PercentChange7d.GetHashCode();
                 if (this.LastUpdated != null)
-                    hashCode = hashCode * 59 + this.LastUpdated.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.LastUpdated.GetHashCode();
+                }
                 return hashCode;
             }
         }

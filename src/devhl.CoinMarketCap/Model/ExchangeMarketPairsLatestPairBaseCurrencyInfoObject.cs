@@ -124,7 +124,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ExchangeMarketPairsLatestPairBaseCurrencyInfoObject {\n");
             sb.Append("  CurrencyId: ").Append(CurrencyId).Append("\n");
             sb.Append("  CurrencyName: ").Append(CurrencyName).Append("\n");
@@ -163,8 +163,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ExchangeMarketPairsLatestPairBaseCurrencyInfoObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.CurrencyId == input.CurrencyId ||
@@ -205,16 +206,24 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.CurrencyId.GetHashCode();
+                hashCode = (hashCode * 59) + this.CurrencyId.GetHashCode();
                 if (this.CurrencyName != null)
-                    hashCode = hashCode * 59 + this.CurrencyName.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CurrencyName.GetHashCode();
+                }
                 if (this.CurrencySymbol != null)
-                    hashCode = hashCode * 59 + this.CurrencySymbol.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CurrencySymbol.GetHashCode();
+                }
                 if (this.ExchangeSymbol != null)
-                    hashCode = hashCode * 59 + this.ExchangeSymbol.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.ExchangeSymbol.GetHashCode();
+                }
                 if (this.CurrencySlug != null)
-                    hashCode = hashCode * 59 + this.CurrencySlug.GetHashCode();
-                hashCode = hashCode * 59 + this.CurrencyType.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CurrencySlug.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.CurrencyType.GetHashCode();
                 return hashCode;
             }
         }

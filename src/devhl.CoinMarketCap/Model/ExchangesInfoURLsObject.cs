@@ -114,7 +114,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ExchangesInfoURLsObject {\n");
             sb.Append("  Website: ").Append(Website).Append("\n");
             sb.Append("  Blog: ").Append(Blog).Append("\n");
@@ -152,8 +152,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ExchangesInfoURLsObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Website == input.Website ||
@@ -197,15 +198,25 @@ namespace devhl.CoinMarketCap.Model
             {
                 int hashCode = 41;
                 if (this.Website != null)
-                    hashCode = hashCode * 59 + this.Website.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Website.GetHashCode();
+                }
                 if (this.Blog != null)
-                    hashCode = hashCode * 59 + this.Blog.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Blog.GetHashCode();
+                }
                 if (this.Chat != null)
-                    hashCode = hashCode * 59 + this.Chat.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Chat.GetHashCode();
+                }
                 if (this.Fee != null)
-                    hashCode = hashCode * 59 + this.Fee.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Fee.GetHashCode();
+                }
                 if (this.Twitter != null)
-                    hashCode = hashCode * 59 + this.Twitter.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.Twitter.GetHashCode();
+                }
                 return hashCode;
             }
         }

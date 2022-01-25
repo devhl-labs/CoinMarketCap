@@ -143,7 +143,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class CryptocurrencyPricePerformanceStatsLatestQuoteObject {\n");
             sb.Append("  Open: ").Append(Open).Append("\n");
             sb.Append("  OpenTimestamp: ").Append(OpenTimestamp).Append("\n");
@@ -186,8 +186,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(CryptocurrencyPricePerformanceStatsLatestQuoteObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Open == input.Open ||
@@ -244,20 +245,28 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Open.GetHashCode();
+                hashCode = (hashCode * 59) + this.Open.GetHashCode();
                 if (this.OpenTimestamp != null)
-                    hashCode = hashCode * 59 + this.OpenTimestamp.GetHashCode();
-                hashCode = hashCode * 59 + this.High.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.OpenTimestamp.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.High.GetHashCode();
                 if (this.HighTimestamp != null)
-                    hashCode = hashCode * 59 + this.HighTimestamp.GetHashCode();
-                hashCode = hashCode * 59 + this.Low.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.HighTimestamp.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.Low.GetHashCode();
                 if (this.LowTimestamp != null)
-                    hashCode = hashCode * 59 + this.LowTimestamp.GetHashCode();
-                hashCode = hashCode * 59 + this.Close.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.LowTimestamp.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.Close.GetHashCode();
                 if (this.CloseTimestamp != null)
-                    hashCode = hashCode * 59 + this.CloseTimestamp.GetHashCode();
-                hashCode = hashCode * 59 + this.PercentChange.GetHashCode();
-                hashCode = hashCode * 59 + this.PriceChange.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.CloseTimestamp.GetHashCode();
+                }
+                hashCode = (hashCode * 59) + this.PercentChange.GetHashCode();
+                hashCode = (hashCode * 59) + this.PriceChange.GetHashCode();
                 return hashCode;
             }
         }

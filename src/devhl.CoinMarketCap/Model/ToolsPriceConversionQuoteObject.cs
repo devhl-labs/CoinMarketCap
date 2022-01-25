@@ -68,7 +68,7 @@ namespace devhl.CoinMarketCap.Model
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.Append("class ToolsPriceConversionQuoteObject {\n");
             sb.Append("  Price: ").Append(Price).Append("\n");
             sb.Append("  LastUpdated: ").Append(LastUpdated).Append("\n");
@@ -103,8 +103,9 @@ namespace devhl.CoinMarketCap.Model
         public bool Equals(ToolsPriceConversionQuoteObject input)
         {
             if (input == null)
+            {
                 return false;
-
+            }
             return 
                 (
                     this.Price == input.Price ||
@@ -126,9 +127,11 @@ namespace devhl.CoinMarketCap.Model
             unchecked // Overflow is fine, just wrap
             {
                 int hashCode = 41;
-                hashCode = hashCode * 59 + this.Price.GetHashCode();
+                hashCode = (hashCode * 59) + this.Price.GetHashCode();
                 if (this.LastUpdated != null)
-                    hashCode = hashCode * 59 + this.LastUpdated.GetHashCode();
+                {
+                    hashCode = (hashCode * 59) + this.LastUpdated.GetHashCode();
+                }
                 return hashCode;
             }
         }
